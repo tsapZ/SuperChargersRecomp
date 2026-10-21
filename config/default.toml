@@ -1,0 +1,14 @@
+# Codegen fixes for default.xex (Skylanders: SuperChargers, Xbox 360).
+# Keys use the same schema as the manifest's [entrypoint] table.
+# Every entry (or group of same-reason entries) needs a comment: what's at the address, how it was
+# found, and why the fix is safe. Addresses from the other Skylanders projects (SwapForceRecomp,
+# SSARecomp, GiantsRecomp) apply to their own executables only and are checked against this one.
+#
+# Entries are added as codegen and the runtime report them.
+
+[functions]
+# 0x8252E1F8 is called through a pointer (the first boot ended with "Call to invalid or
+# unregistered function at guest address 0x8252E1F8" 3 s in); the analyzer had it inside the
+# 12-byte sub_8252E1F0 next to it, two tiny functions back to back. Registering the start splits
+# them; no size given, the analyzer finds the end.
+0x8252E1F8 = {}
