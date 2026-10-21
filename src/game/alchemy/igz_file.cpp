@@ -314,4 +314,20 @@ std::optional<std::pair<std::string, std::string>> IgzFile::ExternalName(uint32_
   return std::make_pair(strings[name], strings[space]);
 }
 
+std::optional<std::pair<std::string, std::string>> IgzFile::NamedExternalName(uint32_t handle) const {
+  auto it = fixups_.find("EXNM");
+  if (!(handle & 0x80000000) || it == fixups_.end()) return std::nullopt;
+  uint32_t left = handle & 0x7FFFFFFF;
+  const std::vector<std::string> strings = Strings("TSTR");
+  for (uint32_t k = 0; k < it->second.count; ++k) {
+    const uint32_t name = Be32(it->second.start + 8 * size_t(k));
+    if (!(name & 0x80000000)) continue;
+    if (left--) continue;
+    const uint32_t space = Be32(it->second.start + 8 * size_t(k) + 4) & 0x7FFFFFFF;
+    if ((name & 0x7FFFFFFF) >= strings.size() || space >= strings.size()) return std::nullopt;
+    return std::make_pair(strings[name & 0x7FFFFFFF], strings[space]);
+  }
+  return std::nullopt;
+}
+
 }  // namespace superchargersrecomp::alchemy

@@ -45,6 +45,7 @@
 #include "toy_images.h"
 
 #include "hats.h"
+#include "toy_upgrades.h"
 
 #include <algorithm>
 #include <cctype>
@@ -121,6 +122,7 @@ constexpr uint16_t kDecoIdMask = 0x1FF;
 struct Toy {
   std::string material;                                   // the default collection material
   std::unordered_map<uint16_t, std::string> variants;     // catalog variant -> material
+  std::string character;                                  // "ChopChop" (its toy data file's name)
   uint32_t terrain = 0;                                   // vehicles: 1 land, 2 sky, 3 sea
 };
 
@@ -260,6 +262,8 @@ void IndexToyData(const IgaArchive& archive, ToyMap& toys) {
       if (id > 0xFFFF || material.empty()) continue;
       Toy& toy = toys[uint16_t(id)];
       toy.material = std::move(material);
+      const size_t file = name.rfind('/') + 1;
+      toy.character = name.substr(file, name.size() - file - kToyDataSuffix.size());
       if (type == "CVehicleToyData") toy.terrain = igz->Field(object, kVehicleTerrainField);
       for (const auto& [variant, m] : variants) toy.variants.emplace(variant, m);
     }
@@ -438,6 +442,12 @@ std::shared_ptr<const FigureImage> Lookup(uint16_t id, uint16_t variant) {
 
 }  // namespace
 
+std::string ToyCharacter(uint16_t id) {
+  std::lock_guard<std::mutex> lock(g_mutex);
+  auto it = g_toys.find(id);
+  return it == g_toys.end() ? std::string() : it->second.character;
+}
+
 void InstallToyImages(const std::filesystem::path& rom_dir) {
   std::thread(Load, rom_dir).detach();
   skylanders::SetFigureImageProvider(
@@ -445,6 +455,7 @@ void InstallToyImages(const std::filesystem::path& rom_dir) {
   skylanders::SetFigureTraitProvider([](uint16_t id, uint16_t) { return Terrain(id); });
   skylanders::SetArtImageProvider([](const std::string& key) -> std::shared_ptr<const FigureImage> {
     if (auto hat = HatPicture(key)) return hat;  // "hat:<number>" (hats.cpp)
+    if (key.starts_with("upgrade:")) return UpgradeImage(key);  // toy_upgrades.cpp
     std::lock_guard<std::mutex> lock(g_mutex);
     return g_ready ? Icon(key) : nullptr;
   });

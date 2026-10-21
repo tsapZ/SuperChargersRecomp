@@ -77,6 +77,10 @@ class IgzFile {
   // The external name a handle (0x80000000 | index into EXNM) refers to, with its namespace:
   // {"Collection_ChopChop_Normal", "Collection_ChopChop_Normal"}, {"<texture>", "image"}.
   std::optional<std::pair<std::string, std::string>> ExternalName(uint32_t handle) const;
+  // The same for a handle that counts only the named entries (those whose name word has the top
+  // bit set), as the character data's handles do: there the named entries alternate with type
+  // names ("metaobject"). Where every entry is named the two are the same.
+  std::optional<std::pair<std::string, std::string>> NamedExternalName(uint32_t handle) const;
 
  private:
   struct Fixup {
