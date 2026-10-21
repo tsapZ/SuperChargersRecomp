@@ -25,6 +25,7 @@
 
 #include "dev/input_script.h"
 #include "dev/write_watch.h"
+#include "game/toy_images.h"
 #include "dev/gpu_diagnostics.h"
 #include "localization.h"
 #include "portal_rex/achievements_ui.h"
@@ -119,6 +120,9 @@ class SuperchargersrecompApp : public rex::ReXApp {
     skylanders::InstallPortal(skylanders::SharedFiguresDir(user_data_root()));
     // A real crash logs where in the game it happened (guest call chain and registers).
     superchargersrecomp::InstallCrashReport(runtime()->memory());
+    // Pictures for the portal menu from the game's own files: the collection icons of every
+    // Skylander, vehicle, trap and item, each figure's own variant where the game has one.
+    superchargersrecomp::InstallToyImages(game_data_root_);
     // The achievements list (F7, F4 > Spiel > Erfolge); the kernel's list exists from launch on.
     skylanders::RegisterAchievementsMenu(
         imgui_drawer(), immediate_drawer(), &app_context(), runtime(),
