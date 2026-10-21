@@ -1,7 +1,7 @@
 # SuperChargersRecomp
 
 An unofficial native Windows port of **Skylanders: SuperChargers** (Xbox 360), made with static
-recompilation (ReXGlue). Work in progress: it boots through the title screen into the opening movie.
+recompilation (ReXGlue). Work in progress: it plays the first level with a figure on the emulated portal.
 
 You need your own copy of the game: nothing from the game is in this repository.
 
@@ -12,7 +12,7 @@ See [docs/STATUS.md](docs/STATUS.md) and [docs/roadmap.md](docs/roadmap.md).
 | Area | State |
 |---|---|
 | Build | ✅ codegen and build |
-| Boot | 🟡 title, menus, opening movie |
+| Boot | ✅ menus and the first level |
 | Portal | ⬜ (the portal code is in, not tried with this game) |
 
 ## Building
