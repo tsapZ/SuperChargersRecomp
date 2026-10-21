@@ -11,7 +11,7 @@ Updated at the end of every session. Only record what a build actually did.
 | SDK | our fork `tsapZ/rexglue-sdk`, branch `skylanders`, shared with the other games |
 | Codegen | works with 28 `config/default.toml` entries: function starts the analyzer put one instruction late |
 | Boot | ✅ logo movies, the title screen ("PULSA START"), "¡Elige tu estilo de juego!" (difficulty), the mode books (Aventura, Carreras), the save slots, then the long opening movie (Start pauses it, doesn't skip it); no crash in 5 minutes |
-| Portal menu | ✅ opens with Guide; shows the game's own round collection icons for every Skylander, vehicle, trap and magic item, each figure's variant where the game has one; opens by itself when the game asks for a Skylander, the portal check on the "too many" screens |
+| Portal menu | ✅ opens with Guide; shows the game's own round collection icons for every Skylander, vehicle, trap and magic item, each figure's variant where the game has one; opens by itself when the game asks for a Skylander, the portal check on the "too many" screens; a vehicle's card shows its terrain (land, sea, sky) with the game's symbol; the details view shows the hat (name, icon, stats) and every Skylander's upgrade tree with the game's pictures and prices |
 | Languages | this disc has **Spanish and Italian only** (347 language files each, `*_es.pak` / `*_it.pak`); German text and voices from the owner's English / German 360 disc with tools/german_text.py (`--xbox360`, applied to this machine's rom/) |
 
 ## 2026-10-21: session log
@@ -122,3 +122,11 @@ Updated at the end of every session. Only record what a build actually did.
   Start: BinkOpen's header hook; end: a hook at the start of BinkClose (sub_831C9F38, called only
   from the game's movie close). Checked by script in a 2560x1080 window with skip_intro off: the
   logos 16:9 in the middle, the screen after them fills the window again.
+
+## 2026-10-22: session log (night)
+
+- **Vehicles' terrain** (51fa8d1): CVehicleToyData +0x30 (1 land, 2 sky, 3 sea, as the game's three template vehicles say), shown on the card, the preview and the details with the collection screen's symbol and the game's word ("Landfahrzeug", "Seefahrzeug", "Himmelsfahrzeug").
+- **Hats in the details view** (src/game/hats.cpp): permanent.pak's CollectibleTrackers.igz (one CHatCollectibleTracker per hat: its number at +0x84, attributes at +0x80, icon material at +0x0C), the names from CollectibleTrackers_es.lng (the German text on the German disc; the English menu makes a name from the hat's object name), the attribute names from systemData.igz translated by systemData_es.lng's hash table (FNV-1a of the English name), the pictures from CollectibleTrackerIcons.pak. Checked on a copy of a Chop Chop with the flower hat: "Blumenhut", its picture, "+2 Rüstung", "+2 Kritische Trefferwahrscheinlichkeit". Log: "266 hats (266 with a picture), 1847 texts, 28 attribute names".
+- **Upgrades in the details view** (src/game/toy_upgrades.cpp; shared readers in src/game/game_data.cpp): a character's <Name>_CharacterData.igz (CSkillsUpgradeComponentData), its texts from <Name>_CharacterData_es.lng, the pictures through <Name>_AbilityUpgrades.pak's materials; read the first time the menu asks for a character. Checked on the Chop Chop copy: the whole tree with "Einfache Verbesserungen", "Vampirkrieger", "Gespenstischer Verteidiger", "Seelenstein-Verbesserung", the prices and the descriptions with X/Y/B.
+- **Portal library** (cbc71c6, 0eb2564): German card subtitles in the singular ("Fahrzeug" instead of "Vehicles"); a plain hat symbol where a game has no hat picture.
+- **New issues:** #3 bloom and motion blur options, #4 the game's controller picture (it is on the disc: Controller_SchemeXenon.pak, 1024x724).
