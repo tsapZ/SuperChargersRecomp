@@ -55,6 +55,7 @@ set(SUPERCHARGERSRECOMP_SOURCES
     src/dev/input_script.cpp
     src/dev/write_watch.cpp
     src/hooks/frame_rate_hook.cpp
+    src/hooks/fxaa_scale_hook.cpp
     src/hooks/intro_skip_hook.cpp
     src/hooks/scene_size_hook.cpp
     src/hooks/ultrawide_hook.cpp

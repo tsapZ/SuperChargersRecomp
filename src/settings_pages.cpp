@@ -102,6 +102,15 @@ SettingsPage GraphicsPage() {
        "Filter verschwimmen sie in der Ferne. Empfohlen ist 16x: Das kostet etwa 1 % Bildrate.",
        {{"0", "Off", "Aus"}, {"3", "4x", "4x"}, {"4", "8x", "8x"}, {"5", "16x", "16x"}}});
   page.settings.push_back(
+      {"fxaa_follow_resolution_scale", "Game's edge smoothing, sharp", "Kantengl\xC3\xA4ttung des "
+       "Spiels, scharf",
+       "The game smooths jagged edges itself (FXAA). On: the smoothing works at the internal "
+       "resolution, so the picture stays sharp at 2x and 3x. Off: as on the console, which makes "
+       "the picture blurry from 2x on. Costs nothing; recommended: on.",
+       "Das Spiel gl\xC3\xA4ttet Treppenkanten selbst (FXAA). An: das passiert in der internen "
+       "Aufl\xC3\xB6sung, so bleibt das Bild bei 2x und 3x scharf. Aus: wie auf der Konsole, das "
+       "macht das Bild ab 2x unscharf. Kostet nichts; empfohlen: an."});
+  page.settings.push_back(
       {"swap_post_effect", "Extra edge smoothing", "Zus\xC3\xA4tzliche Kantengl\xC3\xA4ttung",
        "A second edge smoothing over the whole picture, on top of the game's own. For now it also "
        "makes the picture darker and paler (a known bug). Recommended: off.",
