@@ -17,6 +17,16 @@ address = 0x831C7CC8
 name = "BinkHeaderLoaded"
 registers = ["r1"]
 
+# 0x831C9F38 is the start of BinkClose (the Bink 2 SDK's, the same code in all four later games):
+# found as the one Bink call in the game's movie close (sub_826FB958), which clears the movie's
+# handle right after it; that close is its only caller. With ultrawide active,
+# src/hooks/ultrawide_hook.cpp turns the presenter's side bars it put up for the movie (at
+# BinkOpen, see BinkHeaderLoaded) off again; it reads and changes no guest state.
+[[midasm_hook]]
+address = 0x831C9F38
+name = "BinkCloseHook"
+registers = []
+
 # The scene size hooks (src/hooks/scene_size_hook.cpp; experimental, off unless scene_size is
 # set): the same render code as SwapForceRecomp's, found in a dump of this game's code by the
 # instructions at its four hooks, each with the same instructions around it.
