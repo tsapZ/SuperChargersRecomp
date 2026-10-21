@@ -126,6 +126,12 @@ class SuperchargersrecompApp : public rex::ReXApp {
     // The Guide button opens the portal menu (the menu hides it from the game). SDL drops Guide
     // presses unless this is on.
     SetDefault("guide_button", "true");
+    // 60 FPS unless the settings file says otherwise (the owner's wish, 2026-10-21): the game swaps
+    // every second vblank (30 FPS); present_interval 1 lets it swap every vblank and
+    // frame_rate_limit sets the vblank's rate. The game keeps its speed at more frames (measured,
+    // docs/STATUS.md). "Off" in the menu is interval 2, the game's own, so it stays off.
+    SetDefault("present_interval", "1");
+    SetDefault("frame_rate_limit", "60");
     // The games whose figures this one reads (later games' figures it doesn't know).
     SetDefault("portal_menu_games", "Spyro's Adventure;Giants;Swap Force;Trap Team;SuperChargers");
   }

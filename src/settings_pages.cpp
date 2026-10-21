@@ -150,7 +150,7 @@ SettingsPage FrameRatePage() {
        "keeps its normal speed. Off: 30 FPS as on the console.",
        "Das Spiel ist f\xC3\xBCr 30 FPS gemacht. An: so viele Bilder, wie die Grenze darunter "
        "erlaubt; das Spiel l\xC3\xA4uft dabei normal schnell. Aus: 30 FPS wie auf der Konsole.",
-       {{"0", "Off (30 FPS)", "Aus (30 FPS)"}, {"1", "On", "An"}}});
+       {{"2", "Off (30 FPS)", "Aus (30 FPS)"}, {"1", "On", "An"}}});
   page.settings.push_back(
       {"frame_rate_limit", "Frame rate limit", "FPS-Grenze",
        "The most frames per second with 60 FPS and more on. Best set to your screen's refresh "
@@ -317,9 +317,7 @@ SettingsPage ControlsPage() {
        "Which player the keyboard is. Controllers are assigned in the player menu (L3 + R3).",
        "Welcher Spieler die Tastatur ist. Controller teilst du im Spieler-Men\xC3\xBC zu (L3 + R3).",
        {{"1", "Player 1", "Spieler 1"},
-        {"2", "Player 2", "Spieler 2"},
-        {"3", "Player 3", "Spieler 3"},
-        {"4", "Player 4", "Spieler 4"}}});
+        {"2", "Player 2", "Spieler 2"}}});
   return page;
 }
 
