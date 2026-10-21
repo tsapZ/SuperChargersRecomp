@@ -28,6 +28,7 @@
 #include "hooks/ultrawide_hook.h"
 #include "game/game_fonts.h"
 #include "game/magic_moment_watch.h"
+#include "game/controller_picture.h"
 #include "game/hats.h"
 #include "game/toy_images.h"
 #include "game/toy_upgrades.h"
@@ -261,6 +262,8 @@ class SuperchargersrecompApp : public rex::ReXApp {
           rex::ui::ProcessKeyEvent(event);
         }),
         settings_path_);
+    // The controls page shows the menu buttons on the game's own controller picture.
+    skylanders::SetControllerPicture(superchargersrecomp::ControllerPictureLayout());
     skylanders::RegisterPortalOverlay(drawer);
   }
 
