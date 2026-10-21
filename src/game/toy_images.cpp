@@ -32,6 +32,15 @@
 // 2x with a Lanczos-3 filter (sharper edges, on premultiplied alpha so the round edge stays clean)
 // and kept that way: 120 to 260 KB per icon on screen instead of 70 MB for all of them at start.
 // A variant without an entry of its own (most chase variants) shows its toy's default icon.
+//
+// A vehicle's terrain (SetFigureTraitProvider): CVehicleToyData +0x30, 1 land, 2 sky, 3 sea (the
+// game's TemplateLandVehicle / TemplateAirVehicle / TemplateSeaVehicle toy data have 1 / 2 / 3;
+// read 2026-10-21 from all 36 vehicles' files). Its symbol is the collection screen's,
+// "textures/GuiStandard_diffuse,textures@!ui!Characters_Collection!Elements_Collection!
+// CharactersCollection_Vehicle<Land|Flight|Swim>`tga,101.igz" in AP_MenuSelection_Handling.pak
+// (88x88, gold rim, stored upside down like the others), and its name the game's word for it
+// ("Landfahrzeug", "Seefahrzeug", "Himmelsfahrzeug" in systemData's German text). The owner asked
+// for such symbols after Swap Force's SWAP skills (2026-10-21).
 
 #include "toy_images.h"
 
@@ -53,6 +62,7 @@
 
 #include "game/alchemy/iga_archive.h"
 #include "game/alchemy/igz_file.h"
+#include "portal_rex/menu_draw.h"
 #include "portal_rex/portal_menu.h"
 
 namespace superchargersrecomp {
@@ -96,6 +106,10 @@ constexpr uint32_t kDecoField = 0x08;
 constexpr uint32_t kYearField = 0x0C;
 constexpr uint32_t kFlagsField = 0x10;
 constexpr uint32_t kVariantMaterialField = 0x1C;
+constexpr uint32_t kVehicleTerrainField = 0x30;  // CVehicleToyData
+constexpr char kTerrainArchive[] = "AP_MenuSelection_Handling.pak";
+constexpr std::string_view kTerrainTexture =
+    "textures@!ui!Characters_Collection!Elements_Collection!CharactersCollection_Vehicle";
 
 constexpr uint16_t kSeries2 = 0x800;
 constexpr uint16_t kAlternateDeco = 0x400;
@@ -105,6 +119,7 @@ constexpr uint16_t kDecoIdMask = 0x1FF;
 struct Toy {
   std::string material;                                   // the default collection material
   std::unordered_map<uint16_t, std::string> variants;     // catalog variant -> material
+  uint32_t terrain = 0;                                   // vehicles: 1 land, 2 sky, 3 sea
 };
 
 std::mutex g_mutex;
@@ -243,6 +258,7 @@ void IndexToyData(const IgaArchive& archive, ToyMap& toys) {
       if (id > 0xFFFF || material.empty()) continue;
       Toy& toy = toys[uint16_t(id)];
       toy.material = std::move(material);
+      if (type == "CVehicleToyData") toy.terrain = igz->Field(object, kVehicleTerrainField);
       for (const auto& [variant, m] : variants) toy.variants.emplace(variant, m);
     }
   }
@@ -319,6 +335,12 @@ int IndexArt(const IgaArchive& archive, IconMap& icons) {
     std::string key;
     if (EndsWith(name, kCoinTexture)) {
       key = "ui:gold";
+    } else if (const size_t at = name.find(kTerrainTexture); at != std::string::npos) {
+      const std::string kind = name.substr(at + kTerrainTexture.size());
+      if (kind.rfind("Land`", 0) == 0) key = "vehicle:land";
+      else if (kind.rfind("Flight`", 0) == 0) key = "vehicle:sky";
+      else if (kind.rfind("Swim`", 0) == 0) key = "vehicle:sea";
+      else continue;
     } else if (const size_t at = name.find(kElementTexture);
                at != std::string::npos && EndsWith(name, kElementSuffix)) {
       std::string element = name.substr(at + kElementTexture.size(),
@@ -354,7 +376,7 @@ void Load(std::filesystem::path rom) {
   const SharpMap sharp = tracker ? IndexSharpIcons(*tracker) : SharpMap{};
   IndexIcons(*materials, icons, tracker ? &*tracker : nullptr, sharp);
   int symbols = 0;
-  for (const char* name : {kElementArchive, kCoinArchive}) {
+  for (const char* name : {kElementArchive, kCoinArchive, kTerrainArchive}) {
     if (auto art = IgaArchive::Open(rom / "archives" / name)) symbols += IndexArt(*art, icons);
   }
   size_t variants = 0;
@@ -379,6 +401,27 @@ std::shared_ptr<const FigureImage> Icon(const std::string& material) {
   return it->second;
 }
 
+// A vehicle's terrain as the menu's trait, or nothing for the other toys.
+std::optional<skylanders::FigureTrait> Terrain(uint16_t id) {
+  uint32_t terrain = 0;
+  {
+    std::lock_guard<std::mutex> lock(g_mutex);
+    if (!g_ready) return std::nullopt;
+    auto it = g_toys.find(id);
+    if (it == g_toys.end()) return std::nullopt;
+    terrain = it->second.terrain;
+  }
+  const bool german = skylanders::menu_draw::GermanText();
+  skylanders::FigureTrait trait;
+  switch (terrain) {
+    case 1: trait = {"vehicle:land", german ? "Landfahrzeug" : "Land Vehicle"}; break;
+    case 2: trait = {"vehicle:sky", german ? "Himmelsfahrzeug" : "Sky Vehicle"}; break;
+    case 3: trait = {"vehicle:sea", german ? "Seefahrzeug" : "Sea Vehicle"}; break;
+    default: return std::nullopt;
+  }
+  return trait;
+}
+
 std::shared_ptr<const FigureImage> Lookup(uint16_t id, uint16_t variant) {
   std::lock_guard<std::mutex> lock(g_mutex);
   if (!g_ready) return nullptr;
@@ -397,6 +440,7 @@ void InstallToyImages(const std::filesystem::path& rom_dir) {
   std::thread(Load, rom_dir).detach();
   skylanders::SetFigureImageProvider(
       [](uint16_t id, uint16_t variant) { return Lookup(id, variant); });
+  skylanders::SetFigureTraitProvider([](uint16_t id, uint16_t) { return Terrain(id); });
   skylanders::SetArtImageProvider([](const std::string& key) -> std::shared_ptr<const FigureImage> {
     std::lock_guard<std::mutex> lock(g_mutex);
     return g_ready ? Icon(key) : nullptr;
