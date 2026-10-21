@@ -6,6 +6,17 @@
 #
 # Entries are added as codegen and the runtime report them.
 
+# 0x831C7CC8 is in BinkOpen (Bink 2), right after it reads the 44-byte movie header into r1+112
+# (li r6,44; addi r5,r1,112; bctrl in sub_831C7AF8) and just before the signature compares
+# (lis r11,0x6632 / ori 0x424B, "KB2f" and later). Found in the generated code by the same shape as
+# TrapTeamRecomp's and GiantsRecomp's hooks. src/hooks/intro_skip_hook.cpp cuts the logo movies
+# (skip_intro, on) and optionally the opening movie (skip_opening_movie, off) by setting their frame
+# count to 1; other movies pass unchanged.
+[[midasm_hook]]
+address = 0x831C7CC8
+name = "BinkHeaderLoaded"
+registers = ["r1"]
+
 [functions]
 # 0x8252E1F8 is called through a pointer (the first boot ended with "Call to invalid or
 # unregistered function at guest address 0x8252E1F8" 3 s in); the analyzer had it inside the

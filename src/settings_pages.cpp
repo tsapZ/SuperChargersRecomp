@@ -184,6 +184,16 @@ SettingsPage GamePage() {
                     {"italian", "Italiano", "Italiano"}}};
   language.restart = true;
   page.settings.push_back(language);
+  Setting intro{"skip_intro", "Skip logo movies", "Logo-Videos \xC3\xBC" "berspringen",
+                "Skips the Activision and Vicarious Visions logo videos at start-up.",
+                "\xC3\x9C" "berspringt die Logo-Videos von Activision und Vicarious Visions beim "
+                "Start."};
+  intro.restart = true;
+  page.settings.push_back(intro);
+  page.settings.push_back({"skip_opening_movie", "Skip the opening movie",
+                           "Er\xC3\xB6" "ffnungsfilm \xC3\xBC" "berspringen",
+                           "Skips the long movie at the start of a new game.",
+                           "\xC3\x9C" "berspringt den langen Film beim Start eines neuen Spiels."});
   page.settings.push_back(skylanders::AchievementsSetting());
   return page;
 }
