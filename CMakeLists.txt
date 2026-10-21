@@ -48,6 +48,7 @@ set(SUPERCHARGERSRECOMP_SOURCES
     src/game/kernel_stubs.cpp
     src/game/magic_moment_watch.cpp
     src/game/game_fonts.cpp
+    src/game/hats.cpp
     src/game/toy_images.cpp
     src/localization.cpp
     src/settings_pages.cpp
