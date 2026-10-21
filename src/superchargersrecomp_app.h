@@ -132,6 +132,11 @@ class SuperchargersrecompApp : public rex::ReXApp {
     // docs/STATUS.md). "Off" in the menu is interval 2, the game's own, so it stays off.
     SetDefault("present_interval", "1");
     SetDefault("frame_rate_limit", "60");
+    // The final picture sharpened with CAS (the menu's "Quality" preset) unless the settings file
+    // or the command line sets present_effect (the owner asked for the best picture by default,
+    // 2026-10-21). resolution_scale, the preset's other half, belongs to the GPU plugin, which
+    // isn't loaded yet here; the installer's settings file sets it for the screen.
+    SetDefaultIfUnset("present_effect", "cas");
     // The games whose figures this one reads (later games' figures it doesn't know).
     SetDefault("portal_menu_games", "Spyro's Adventure;Giants;Swap Force;Trap Team;SuperChargers");
   }
@@ -289,6 +294,15 @@ class SuperchargersrecompApp : public rex::ReXApp {
   // Sets a setting's default without overriding what the user put in the settings file.
   static void SetDefault(std::string_view name, std::string_view value) {
     if (!rex::cvar::HasNonDefaultValue(name) && !rex::cvar::SetFlagByName(name, value)) {
+      REXLOG_WARN("Could not set {} to {}", name, value);
+    }
+  }
+
+  // The same, but only when nothing set the setting at all, so a choice of the compiled-in value
+  // (e.g. no sharpening, "bilinear") stays chosen.
+  static void SetDefaultIfUnset(std::string_view name, std::string_view value) {
+    if (rex::cvar::GetFlagSource(name) == rex::cvar::Source::kDefault &&
+        !rex::cvar::SetFlagByName(name, value)) {
       REXLOG_WARN("Could not set {} to {}", name, value);
     }
   }
