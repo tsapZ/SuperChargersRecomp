@@ -26,6 +26,7 @@
 #include "dev/input_script.h"
 #include "dev/write_watch.h"
 #include "hooks/ultrawide_hook.h"
+#include "game/game_fonts.h"
 #include "game/magic_moment_watch.h"
 #include "game/toy_images.h"
 #include "dev/gpu_diagnostics.h"
@@ -206,6 +207,8 @@ class SuperchargersrecompApp : public rex::ReXApp {
     }
 #endif
     if (font) ImGui::GetIO().FontDefault = font;
+    // The menus' titles and text in the game's own fonts (its ProximaNova bitmap fonts).
+    skylanders::SetGameFonts(superchargersrecomp::LoadGameFonts(game_data_root_));
     skylanders::AddPortalMenuFonts(atlas);
   }
 

@@ -88,3 +88,11 @@ Updated at the end of every session. Only record what a build actually did.
   FPS (the figure's intro 7.34 against 7.45 s, the portal sequence 5.88 against 5.94 s). The magic
   moment watch logs its state changes at info level now (a few lines per figure change), which is
   how the speed was timed.
+- **The menus in the game's own fonts** (src/game/game_fonts.cpp, skylanders-portal b804d9c,
+  SwapForceRecomp #54): fonts/ProximaNova-Title.igz (permanent.pak, 133 glyphs, small caps, cells
+  146 px) and fonts/ProximaNova-Body.igz (essentialui.pak, 170 glyphs with ä ö ü ß, cells 34 px)
+  are igBitmapFont files; their igCharMetrics give each glyph's cell and their atlas pages are
+  16-bit Xbox 360 tiled, the first byte the coverage. The portal library draws the menus' titles
+  and text with them (Segoe UI fills in the few glyphs they lack, e.g. the title font's ä and ü),
+  scaled so their capitals are as tall as Segoe's. Read in 24 ms at start. Checked by script: the
+  portal menu's title, names, tabs and hints in the game's letters.

@@ -47,6 +47,7 @@ set(SUPERCHARGERSRECOMP_SOURCES
     src/game/alchemy/lzma_decoder.cpp
     src/game/kernel_stubs.cpp
     src/game/magic_moment_watch.cpp
+    src/game/game_fonts.cpp
     src/game/toy_images.cpp
     src/localization.cpp
     src/settings_pages.cpp

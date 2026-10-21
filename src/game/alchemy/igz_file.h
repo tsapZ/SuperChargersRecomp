@@ -35,6 +35,21 @@ struct RgbaImage {
   std::vector<uint8_t> pixels;  // width * height * 4, RGBA
 };
 
+// An igImage2's pixel data as stored, for formats DecodeFirstImage doesn't decode (a bitmap font's
+// 16-bit atlas): its size, the format's name hash, and where its bytes are in the file.
+struct RawImage {
+  size_t object = 0;
+  int width = 0;
+  int height = 0;
+  uint32_t format_hash = 0;
+  size_t data = 0;  // offset into IgzFile::Bytes()
+  uint32_t size = 0;
+};
+
+// Xbox 360 2D tiling (XGAddress2DTiledOffset): the byte offset of element (x, y) of a surface
+// `pitch` elements wide, each 2^log2_bytes bytes (a DXT block or a texel).
+uint32_t TiledOffset2D(uint32_t x, uint32_t y, uint32_t pitch, uint32_t log2_bytes);
+
 class IgzFile {
  public:
   static std::optional<IgzFile> Parse(std::vector<uint8_t> data);
@@ -46,6 +61,12 @@ class IgzFile {
 
   // The first igImage2 in the file, decoded; nullopt if there is none or its format isn't DXT1/3/5.
   std::optional<RgbaImage> DecodeFirstImage() const;
+  // Every igImage2 with its pixel data as stored, in object order.
+  std::vector<RawImage> RawImages() const;
+  // A serialized pointer as an offset into Bytes(), nullopt if it points outside the pools.
+  std::optional<size_t> Pointer(uint32_t value) const { return Deserialize(value); }
+  // The whole file, for fields that aren't u32.
+  const std::vector<uint8_t>& Bytes() const { return data_; }
 
   // Every object whose class (TMET) name ends with `suffix`, with its class name.
   std::vector<std::pair<size_t, std::string>> Objects(const std::string& suffix) const;
