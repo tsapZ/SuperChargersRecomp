@@ -15,17 +15,21 @@ See [docs/STATUS.md](docs/STATUS.md) and [docs/roadmap.md](docs/roadmap.md).
 | Boot | ✅ menus and the first level |
 | Portal | ✅ emulated portal; the portal menu opens by itself and shows the game's collection icons |
 
-## German from your PS3 disc
+## German (or English) from another disc you own
 
-The Xbox 360 disc this port is made for has Spanish and Italian only. If you also own the PS3
-disc of the game, `tools/german_text.py` puts its German text (and with `--voices` its German
-voices) into your extracted 360 disc (`rom/`), as in ImaginatorsRecomp:
+The Xbox 360 disc this port is made for has Spanish and Italian only. If you also own another disc
+of the game, `tools/german_text.py` puts its German text and voices into your extracted 360 disc
+(`rom/`); the game then runs in German throughout. Best is the European English / German Xbox 360
+disc: its voices are the game's own. The PS3 disc works for the text too (as in ImaginatorsRecomp).
 
+    python tools/german_text.py --xbox360 "D:\path\to\the En-De disc.iso" --voices
     python tools/german_text.py --ps3 "D:\path\to\the PS3 disc.iso" [--voices]
     python tools/german_text.py --restore        (back to the disc's Spanish)
 
-It needs 7-Zip for the PS3 .iso and Python 3. The title screen, the licence agreement and the
-Xbox 360's own messages become German too. Not tried with this game's PS3 disc yet.
+`--language en` puts in English instead. It needs Python 3, and extract-xiso (in `installer/`) for
+an Xbox 360 .iso or 7-Zip for a PS3 .iso; an already extracted disc folder works as well. The title
+screen, the licence agreement and the Xbox 360's own messages change too. That disc's own
+`default.xex` is a different build and doesn't run with this port; only its files are used.
 
 ## Building
 

@@ -12,7 +12,7 @@ Updated at the end of every session. Only record what a build actually did.
 | Codegen | works with 28 `config/default.toml` entries: function starts the analyzer put one instruction late |
 | Boot | ✅ logo movies, the title screen ("PULSA START"), "¡Elige tu estilo de juego!" (difficulty), the mode books (Aventura, Carreras), the save slots, then the long opening movie (Start pauses it, doesn't skip it); no crash in 5 minutes |
 | Portal menu | ✅ opens with Guide; shows the game's own round collection icons for every Skylander, vehicle, trap and magic item, each figure's variant where the game has one; opens by itself when the game asks for a Skylander, the portal check on the "too many" screens |
-| Languages | this disc has **Spanish and Italian only** (347 language files each, `*_es.pak` / `*_it.pak`), so the game runs in Spanish with language "auto" on a German Windows |
+| Languages | this disc has **Spanish and Italian only** (347 language files each, `*_es.pak` / `*_it.pak`); German text and voices from the owner's English / German 360 disc with tools/german_text.py (`--xbox360`, applied to this machine's rom/) |
 
 ## 2026-10-21: session log
 
@@ -63,3 +63,13 @@ Updated at the end of every session. Only record what a build actually did.
   widens the aspect and the FOV there, keeping the vertical FOV; the app turns the letterbox off.
   Checked by script: the portal tunnel in a 2560x1080 window: the vehicle's proportions as in 16:9
   (width / height 1.42 in both), more of the tunnel at both sides; the HUD stretched.
+- **German from the owner's English / German Xbox 360 disc** (tools/german_text.py `--xbox360`,
+  `--language de|en`): that disc ("Skylanders - SuperChargers (Europe) (En,De)") has the same
+  2748 archives, with a German and an English twin of every Spanish file, but its default.xex is a
+  different build (the same size, other function addresses, e.g. 0x82698078 there for 0x82698108
+  here, checked by running codegen on it), so this port stays on the Spanish / Italian xex and
+  takes only the files: 1146 text files in 362 archives, the licence, and 10833 voices in 341
+  voice archives, the game's own XMA banks (no conversion as with a PS3 disc), in 9 s. The 360
+  platform strings come as a twin too ("Drücke Start"). On copies the tool was applied and undone
+  (`--restore`, identical md5). Checked by script: the menus, "Sofort-Skylander verwenden" /
+  "Level neu starten" at the portal and "Halte RT zum Beschleunigen!" in the tunnel, no error.
