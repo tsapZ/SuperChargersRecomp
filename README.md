@@ -24,7 +24,8 @@ voices) into your extracted 360 disc (`rom/`), as in ImaginatorsRecomp:
     python tools/german_text.py --ps3 "D:\path\to\the PS3 disc.iso" [--voices]
     python tools/german_text.py --restore        (back to the disc's Spanish)
 
-It needs 7-Zip for the PS3 .iso and Python 3. Not tried with this game's PS3 disc yet.
+It needs 7-Zip for the PS3 .iso and Python 3. The title screen, the licence agreement and the
+Xbox 360's own messages become German too. Not tried with this game's PS3 disc yet.
 
 ## Building
 
