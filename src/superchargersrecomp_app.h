@@ -25,6 +25,7 @@
 
 #include "dev/input_script.h"
 #include "dev/write_watch.h"
+#include "hooks/ultrawide_hook.h"
 #include "game/magic_moment_watch.h"
 #include "game/toy_images.h"
 #include "dev/gpu_diagnostics.h"
@@ -98,6 +99,11 @@ class SuperchargersrecompApp : public rex::ReXApp {
   void OnPreSetup(rex::RuntimeConfig& config) override {
     // Before the GPU plugin creates its device (testing only, gpu_crash_diagnostics).
     superchargersrecomp::EnableGpuCrashDiagnostics();
+    // A wider window with ultrawide_fov: the picture fills it (the camera sees more to the sides)
+    // instead of the presenter's black bars, unless present_letterbox was set by hand.
+    if (superchargersrecomp::UltrawideActive() && !rex::cvar::HasNonDefaultValue("present_letterbox")) {
+      rex::cvar::SetFlagByName("present_letterbox", "false");
+    }
     // A 3D scene larger than the 360's needs more EDRAM than it has (scene_size_hook.cpp), unless
     // edram_tile_count was set by hand.
     if (!REXCVAR_GET(scene_size).empty() && !rex::cvar::HasNonDefaultValue("edram_tile_count")) {

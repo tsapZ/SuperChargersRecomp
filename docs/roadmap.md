@@ -9,7 +9,7 @@ SuperChargers Recompiled, the fifth Skylanders game, built the same way as the o
 | 1 Recompile and boot | ✅ | codegen, first boot, menus and the first level |
 | 1.1 Portal | ✅ emulated portal, the portal menu with the game's pictures, opening by itself | player 2, vehicles' own prompt |
 | 2 In-game | ⬜ | the first levels playable, saves, figures, intro skip |
-| 3 Polish | 🟡 native 3D picture (experimental option) | the game's pictures and names in the menus, high frame rate, resolution, ultrawide |
+| 3 Polish | 🟡 native 3D picture (experimental option), ultrawide | the game's pictures and names in the menus, high frame rate, resolution, ultrawide |
 
 ## Now, next, later
 
