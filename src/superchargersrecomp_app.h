@@ -58,6 +58,8 @@ REXCVAR_DEFINE_DOUBLE(ui_scale, 1.0, "UI",
                      "screens where the default looks small.")
     .lifecycle(rex::cvar::Lifecycle::kInitOnly);
 
+REXCVAR_DECLARE(std::string, scene_size);  // hooks/scene_size_hook.cpp
+
 class SuperchargersrecompApp : public rex::ReXApp {
  public:
   using rex::ReXApp::ReXApp;
@@ -96,6 +98,11 @@ class SuperchargersrecompApp : public rex::ReXApp {
   void OnPreSetup(rex::RuntimeConfig& config) override {
     // Before the GPU plugin creates its device (testing only, gpu_crash_diagnostics).
     superchargersrecomp::EnableGpuCrashDiagnostics();
+    // A 3D scene larger than the 360's needs more EDRAM than it has (scene_size_hook.cpp), unless
+    // edram_tile_count was set by hand.
+    if (!REXCVAR_GET(scene_size).empty() && !rex::cvar::HasNonDefaultValue("edram_tile_count")) {
+      rex::cvar::SetFlagByName("edram_tile_count", "4096");
+    }
     // The Xenos GPU plugin renders the Xbox 360 command stream; without it nothing is drawn.
     if (config.gpu_plugin.empty()) config.gpu_plugin = "xenos";
     // A specific graphics backend (the plugin otherwise takes D3D12 when it has it). Vulkan only

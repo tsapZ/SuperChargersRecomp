@@ -47,3 +47,11 @@ Updated at the end of every session. Only record what a build actually did.
   .data and the physical heap at the prompt and in play. Checked by script: the menu came up by
   itself at "Coloca un Skylander", A and A put Double Trouble on, and the game went on into the
   portal tunnel with Double Trouble's portrait in the HUD.
+- **Native 3D picture, experimental** (src/hooks/scene_size_hook.cpp, `scene_size`, Graphics page,
+  off by default): the 360 draws the 3D scene at 1040x620 (mainScene in standard_renderer.igz in
+  LooseFiles.pak) and stretches it to 720p. SwapForceRecomp's hook, the same render code: the target
+  size function (0x826E8718) and the three EDRAM places (planning heap, tiling decision, depth base)
+  found in a dump of this game's code by their instructions. With it on the scene is drawn at
+  1264x704 with the SDK's 4096-tile EDRAM (D3D12). Checked by script up to the portal tunnel with a
+  figure: the target goes 1040x620 -> 1264x704, the scene draws right, the edges about 12 % sharper
+  (mean gradient of the same frame), no crash.

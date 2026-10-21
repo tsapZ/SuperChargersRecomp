@@ -17,6 +17,41 @@ address = 0x831C7CC8
 name = "BinkHeaderLoaded"
 registers = ["r1"]
 
+# The scene size hooks (src/hooks/scene_size_hook.cpp; experimental, off unless scene_size is
+# set): the same render code as SwapForceRecomp's, found in a dump of this game's code by the
+# instructions at its four hooks, each with the same instructions around it.
+# 0x826E8718 is the start of the function that computes an igRenderTarget's size (r3): the
+# only one reading its own _width / _height (+0x20 / +0x24) with the scales (+0x28 / +0x2C) nearby.
+# The hook swaps in scene_size for a target that says 1040x620 (the 360 pipeline's mainScene).
+[[midasm_hook]]
+address = 0x826E8718
+name = "SceneSizeHook"
+registers = ["r3"]
+
+# 0x826EDC64 follows lis r5,0x20: r5 = 0x200000 is the frame's EDRAM planning heap (2048 tiles
+# of 1024 bytes) for its init call; with the SDK's 4096-tile EDRAM it gets that many. r5 is only
+# that argument.
+[[midasm_hook]]
+address = 0x826EDC64
+name = "EdramHeapSizeHook"
+registers = ["r5"]
+
+# 0x82600D20 is cmpwi cr6,r5,0x800: a render pass's EDRAM tiles against 2048, above which
+# the game switches to predicated tiling (black scene in the SDK). r5 is lowered to 2048 when the
+# pass fits into a 4096-tile EDRAM the SDK runs; r5 is not read on that path.
+[[midasm_hook]]
+address = 0x82600D20
+name = "EdramTilingHook"
+registers = ["r5"]
+
+# 0x82601910 follows subfic r9,r11,0x800 in the per-pass EDRAM allocation: r9 = 2048 minus
+# the depth surface's tiles (r11), stored two instructions on. With a 4096-tile EDRAM the depth goes
+# to its top instead; r9 is only read by that store.
+[[midasm_hook]]
+address = 0x82601910
+name = "EdramDepthBaseHook"
+registers = ["r9", "r11"]
+
 [functions]
 # 0x8252E1F8 is called through a pointer (the first boot ended with "Call to invalid or
 # unregistered function at guest address 0x8252E1F8" 3 s in); the analyzer had it inside the
