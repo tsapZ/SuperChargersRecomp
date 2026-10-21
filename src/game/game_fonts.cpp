@@ -41,6 +41,8 @@ constexpr std::string_view kTitleFont = "/fonts/ProximaNova-Title.igz";
 constexpr char kBodyArchive[] = "essentialui.pak";
 constexpr std::string_view kBodyFont = "/fonts/ProximaNova-Body.igz";
 
+// The atlas pages' format (its name's hash in the file's EXID list), 16 bits per texel.
+constexpr uint32_t kCoverageFormat = 0xF8C753BD;
 constexpr uint32_t kFontSizeField = 0x0C;
 constexpr uint32_t kListCountField = 0x08;
 constexpr uint32_t kListItems = 0x18;
@@ -104,8 +106,11 @@ std::shared_ptr<const GameFont> ReadFont(const std::filesystem::path& archive_pa
       const alchemy::RawImage& image = images[page];
       GameFontPage& out = font->pages.emplace_back();
       const uint32_t rows = (uint32_t(image.height) + 31) & ~31u;
-      if (image.width <= 0 || image.height <= 0 || image.size != uint32_t(image.width) * rows * 2) {
-        continue;  // not the 16-bit coverage format (the Body font's 32-bit symbol page)
+      // The 16-bit coverage format only (the Body font's 32-bit symbol page is left out), its
+      // first mip level (Imaginators' title page has a second one after it).
+      if (image.format_hash != kCoverageFormat || image.width <= 0 || image.height <= 0 ||
+          image.size < uint32_t(image.width) * rows * 2) {
+        continue;
       }
       out.width = image.width;
       out.height = image.height;
