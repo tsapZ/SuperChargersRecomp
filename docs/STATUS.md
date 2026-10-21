@@ -109,3 +109,10 @@ Updated at the end of every session. Only record what a build actually did.
   vehicles and the others under none. Its table now has them, read from the games' own files
   (here: the toy data's +0x0C). Checked by script: the SuperChargers tab shows Splat, Soda Skimmer
   and Splatter Splasher under Magic, Smash Hit, Shark Tank and Thump Truck under Earth.
+- **The HUD at the window's edges with ultrawide** (`ultrawide_hud`, on; F4 > Grafik > "HUD bei
+  Ultrawide"): the owner found the stretched HUD squashed. The UI (Juice) lays itself out on its
+  contexts' expected screen width, as in Swap Force (whose hook was found first); the hook sets it
+  to the window's width at the UI's height where the sizes are read for drawing, so the HUD and the
+  menus keep their proportions at the window's edges. Checked by script in a 2560x1080 window:
+  the portal prompt, a level's HUD (the gauge and the portrait at the left edge, the hint
+  banner) and the pause menu, nothing left uncovered.

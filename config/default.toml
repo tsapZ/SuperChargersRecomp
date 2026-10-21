@@ -52,6 +52,17 @@ address = 0x82601910
 name = "EdramDepthBaseHook"
 registers = ["r9", "r11"]
 
+# 0x827CBBC4 is lfs f0,16(r11) in sub_827CBB80, where a UI (Juice) context's main screen sizes are
+# read for drawing; r11 is the context (its reflection field _expectedScreenWidth at +0x28, then
+# its height). Found as Swap Force's twin (the same branch between the main screen's +0x10 and the
+# second one's +0x20); the fields in a snapshot of SuperChargers' contexts. With ultrawide_hud
+# (on by default) and ultrawide_fov on a wider window, src/hooks/ultrawide_hook.cpp sets that
+# width to the window's at the UI's height before it is read; otherwise it puts the game's own back.
+[[midasm_hook]]
+address = 0x827CBBC4
+name = "UltrawideHudHook"
+registers = ["r11"]
+
 # 0x82B0BCA0 is the call from the scene camera's per-frame set-up to the perspective builder
 # sub_8250E610(r3 = projection matrix, f1 = horizontal FOV, f2 = vertical FOV, f3 = aspect, f4 =
 # near, f5 = far; radians), as in SwapForceRecomp (hook UltrawideFovHook): the builder found by Swap
