@@ -13,7 +13,7 @@ See [docs/STATUS.md](docs/STATUS.md) and [docs/roadmap.md](docs/roadmap.md).
 |---|---|
 | Build | ✅ codegen and build |
 | Boot | ✅ menus and the first level |
-| Portal | ✅ emulated portal; the portal menu (Guide) shows the game's collection icons |
+| Portal | ✅ emulated portal; the portal menu opens by itself and shows the game's collection icons |
 
 ## Building
 

@@ -11,7 +11,7 @@ Updated at the end of every session. Only record what a build actually did.
 | SDK | our fork `tsapZ/rexglue-sdk`, branch `skylanders`, shared with the other games |
 | Codegen | works with 28 `config/default.toml` entries: function starts the analyzer put one instruction late |
 | Boot | ✅ logo movies, the title screen ("PULSA START"), "¡Elige tu estilo de juego!" (difficulty), the mode books (Aventura, Carreras), the save slots, then the long opening movie (Start pauses it, doesn't skip it); no crash in 5 minutes |
-| Portal menu | ✅ opens with Guide; shows the game's own round collection icons for every Skylander, vehicle, trap and magic item, each figure's variant where the game has one; it doesn't open by itself yet |
+| Portal menu | ✅ opens with Guide; shows the game's own round collection icons for every Skylander, vehicle, trap and magic item, each figure's variant where the game has one; opens by itself when the game asks for a Skylander, the portal check on the "too many" screens |
 | Languages | this disc has **Spanish and Italian only** (347 language files each, `*_es.pak` / `*_it.pak`), so the game runs in Spanish with language "auto" on a German Windows |
 
 ## 2026-10-21: session log
@@ -38,3 +38,12 @@ Updated at the end of every session. Only record what a build actually did.
   read in 157 ms at start-up. Checked by script in the first level: the Air Skylanders of Spyro's
   Adventure, Swap Force's Magic ones (with swappers), Trap Team's (Eon's Elite Spyro, a Mini),
   SuperChargers' and the magic items show their pictures.
+- **The portal menu opens by itself** (src/game/magic_moment_watch.cpp, Swap Force's watch with
+  this game's values): the CMagicMoment class is the same as in Swap Force with more fields.
+  Its field names and u16 offsets come from the executable (Ghidra project imported this
+  morning: names at 0x820B5FF8, offsets right after at 0x820B62C0; state +0x2C, reason +0x168,
+  error type +0x1F8, player +0x1FC), the enum names too (eMMS_ states with Idle 5 and Error 17,
+  eMMR_ reasons with VehicleRequired 13), and the instance pointer (0x83764ED0) from snapshots of
+  .data and the physical heap at the prompt and in play. Checked by script: the menu came up by
+  itself at "Coloca un Skylander", A and A put Double Trouble on, and the game went on into the
+  portal tunnel with Double Trouble's portrait in the HUD.

@@ -25,6 +25,7 @@
 
 #include "dev/input_script.h"
 #include "dev/write_watch.h"
+#include "game/magic_moment_watch.h"
 #include "game/toy_images.h"
 #include "dev/gpu_diagnostics.h"
 #include "localization.h"
@@ -84,6 +85,7 @@ class SuperchargersrecompApp : public rex::ReXApp {
   }
 
   void OnShutdown() override {
+    superchargersrecomp::StopMagicMomentWatch();
     // The menu's textures belong to the immediate drawer, which goes away right after this.
     skylanders::ShutdownAchievementsMenu();
     skylanders::ShutdownPortalMenu();
@@ -123,6 +125,10 @@ class SuperchargersrecompApp : public rex::ReXApp {
     // Pictures for the portal menu from the game's own files: the collection icons of every
     // Skylander, vehicle, trap and item, each figure's own variant where the game has one.
     superchargersrecomp::InstallToyImages(game_data_root_);
+    // The portal menu opens by itself when the game asks for a Skylander or a vehicle.
+    superchargersrecomp::StartMagicMomentWatch(runtime()->memory());
+    // Items go on and off the portal only once the player's Skylander is back in the game.
+    skylanders::SetGameBusyProvider([] { return superchargersrecomp::MagicMomentActive(); });
     // The achievements list (F7, F4 > Spiel > Erfolge); the kernel's list exists from launch on.
     skylanders::RegisterAchievementsMenu(
         imgui_drawer(), immediate_drawer(), &app_context(), runtime(),
