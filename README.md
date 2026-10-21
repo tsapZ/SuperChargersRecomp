@@ -15,6 +15,17 @@ See [docs/STATUS.md](docs/STATUS.md) and [docs/roadmap.md](docs/roadmap.md).
 | Boot | ✅ menus and the first level |
 | Portal | ✅ emulated portal; the portal menu opens by itself and shows the game's collection icons |
 
+## German from your PS3 disc
+
+The Xbox 360 disc this port is made for has Spanish and Italian only. If you also own the PS3
+disc of the game, `tools/german_text.py` puts its German text (and with `--voices` its German
+voices) into your extracted 360 disc (`rom/`), as in ImaginatorsRecomp:
+
+    python tools/german_text.py --ps3 "D:\path\to\the PS3 disc.iso" [--voices]
+    python tools/german_text.py --restore        (back to the disc's Spanish)
+
+It needs 7-Zip for the PS3 .iso and Python 3. Not tried with this game's PS3 disc yet.
+
 ## Building
 
 The same as the other Skylanders ports: see [docs/development.md](docs/development.md).
