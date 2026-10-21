@@ -93,9 +93,10 @@ std::optional<Prompt> CurrentPrompt(rex::memory::Memory* memory) {
   g_active.store(state && *state != 0 && *state <= kLastState);
   const auto player = ReadGuest32(memory, *instance + kPlayerOffset);
   if (state && *state != g_last_state) {
-    // The state sequence of one figure change, e.g. to time the portal menu against it.
-    REXLOG_DEBUG("Magic moment: state {} -> {} (player {})", g_last_state, *state,
-                 player ? int32_t(*player) + 1 : 0);
+    // The state sequence of one figure change, e.g. to time the portal menu against it or the
+    // game's speed at a higher frame rate. A few lines per figure change, so at info level.
+    REXLOG_INFO("Magic moment: state {} -> {} (player {})", g_last_state, *state,
+                player ? int32_t(*player) + 1 : 0);
     g_last_state = *state;
     // A menu opened with the button comes up during the zoom-out, just before the prompt.
     if (*state == kStateZoomOut && player && *player < 4) skylanders::PortalScreenComing(*player);

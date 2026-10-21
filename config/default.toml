@@ -63,6 +63,15 @@ address = 0x82B0BCA0
 name = "UltrawideFovHook"
 registers = ["f1", "f2", "f3"]
 
+# 0x828777D8 queues a D3D swap (the D3D library's code, found by Swap Force's instructions, 38 of
+# its first 40 the same); r3 is the swap word, bits 8-11 the presentation interval (2 = 30 FPS
+# here: 30.0 FPS with frame_rate_limit 60, 72.0 with 144). src/hooks/frame_rate_hook.cpp can
+# override the interval (present_interval, off by default); it only changes r3 before it is read.
+[[midasm_hook]]
+address = 0x828777D8
+name = "SwapIntervalHook"
+registers = ["r3"]
+
 [functions]
 # 0x8252E1F8 is called through a pointer (the first boot ended with "Call to invalid or
 # unregistered function at guest address 0x8252E1F8" 3 s in); the analyzer had it inside the

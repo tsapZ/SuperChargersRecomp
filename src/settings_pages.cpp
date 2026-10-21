@@ -132,18 +132,27 @@ SettingsPage GraphicsPage() {
 
 SettingsPage FrameRatePage() {
   SettingsPage page{"Frame rate", "Bildrate", {}};
-  // The game swaps with presentation interval 1 already; its 30 FPS come from the emulated vblank,
-  // which the SDK runs at 30 Hz without a limit and at the limit's rate with one (measured: 60.0
-  // and 143.9 FPS on the title screen with 60 and 144). Walking speed and the intro's pace stay
-  // the same at 144 FPS; only loading screens finish sooner. docs/STATUS.md, 2026-10-20.
+  // The game swaps with presentation interval 2 (30 FPS), as Swap Force; hooks/frame_rate_hook.cpp
+  // sets 1 with present_interval, and frame_rate_limit sets the emulated vblank rate. Measured
+  // 2026-10-21 in play: 30.0 FPS with frame_rate_limit 60 and 72.0 with 144 at the game's interval,
+  // 144.2 with present_interval 1. Game speed: the magic moment's states around a figure's arrival
+  // last as long at 144 as at 30 FPS (the intro 7.34 against 7.45 s, the portal sequence 5.88
+  // against 5.94 s). docs/STATUS.md.
   page.settings.push_back(
-      {"frame_rate_limit", "Frame rate", "Bildrate",
-       "The game was made for 30 FPS and keeps its normal speed with more. Best set to your "
-       "screen's refresh rate. If your PC can't reach it, the game simply runs as fast as it can.",
-       "Das Spiel ist f\xC3\xBCr 30 FPS gemacht und l\xC3\xA4uft mit mehr normal schnell. Am "
-       "besten die Bildwiederholrate deines Bildschirms. Schafft dein PC das nicht, l\xC3\xA4uft "
-       "das Spiel einfach so schnell, wie er kann.",
-       {{"0", "30 (as on the console)", "30 (wie auf der Konsole)"},
+      {"present_interval", "60 FPS and more", "60 FPS und mehr",
+       "The game was made for 30 FPS. On: as many frames as the limit below allows; the game "
+       "keeps its normal speed. Off: 30 FPS as on the console.",
+       "Das Spiel ist f\xC3\xBCr 30 FPS gemacht. An: so viele Bilder, wie die Grenze darunter "
+       "erlaubt; das Spiel l\xC3\xA4uft dabei normal schnell. Aus: 30 FPS wie auf der Konsole.",
+       {{"0", "Off (30 FPS)", "Aus (30 FPS)"}, {"1", "On", "An"}}});
+  page.settings.push_back(
+      {"frame_rate_limit", "Frame rate limit", "FPS-Grenze",
+       "The most frames per second with 60 FPS and more on. Best set to your screen's refresh "
+       "rate. If your PC can't reach it, the game simply runs as fast as it can.",
+       "H\xC3\xB6" "chstens so viele Bilder pro Sekunde, wenn 60 FPS und mehr an ist. Am besten "
+       "die Bildwiederholrate deines Bildschirms. Schafft dein PC das nicht, l\xC3\xA4uft das "
+       "Spiel einfach so schnell, wie er kann.",
+       {{"30", "30", "30"},
         {"60", "60", "60"},
         {"120", "120", "120"},
         {"144", "144", "144"},
