@@ -96,3 +96,16 @@ Updated at the end of every session. Only record what a build actually did.
   and text with them (Segoe UI fills in the few glyphs they lack, e.g. the title font's ä and ü),
   scaled so their capitals are as tall as Segoe's. Read in 24 ms at start. Checked by script: the
   portal menu's title, names, tabs and hints in the game's letters.
+- **The game's element badges and coin in the portal menu** (src/game/toy_images.cpp): the
+  menu drew its own; the HUD's element badges (permanent.pak, ui/HealthHud_2015/Portraits/
+  Elements, 88x88, all ten elements, the collection screen's medallions) and the ability shop's
+  coin (juicedomain_permanent.pak) are handed to it now, stored upside down like the icons.
+- **Sharper icons where the disc has them:** 88x88 is all it has of most figures (the bios'
+  full-screen pictures the toy data names are not on the Xbox 360 disc), but the collection
+  tracker (CollectibleTrackerIcons.pak) has 128x128 copies of 20 of this game's own characters;
+  those are taken instead. Every icon is now enlarged 2x (also the 128 ones).
+- **The later games' characters in their element groups:** the portal library knew the elements
+  of the first three games only, so this game's tab (and Trap Team's) listed Splat, Spitfire, the
+  vehicles and the others under none. Its table now has them, read from the games' own files
+  (here: the toy data's +0x0C). Checked by script: the SuperChargers tab shows Splat, Soda Skimmer
+  and Splatter Splasher under Magic, Smash Hit, Shark Tank and Thump Truck under Earth.

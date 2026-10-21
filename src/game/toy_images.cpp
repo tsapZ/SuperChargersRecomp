@@ -21,16 +21,22 @@
 //      101"), stored in the same archive as textures/<that name>.igz. Its igImage2 is the icon,
 //      88x88 DXT5, stored upside down (as Trap Team's portraits; first shown upside down in the
 //      menu, seen by the owner 2026-10-21), so it is flipped when it is read.
-// 88x88 is all the disc has of a figure (its HUD portraits, ui/HealthHud_2015/Portraits, are the
-// same size), and the menu shows it about twice as large (more at 4K), where the GPU's bilinear
-// filter makes it soft. So the first time the menu asks for an icon it is enlarged 2x with a
-// Lanczos-3 filter (sharper edges, on premultiplied alpha so the round edge stays clean) and kept
-// that way: about 120 KB per icon on screen instead of 70 MB for all of them at start.
+// 88x88 is all the disc has of most figures (their HUD portraits, ui/HealthHud_2015/Portraits,
+// are the same size; the bios' full-screen pictures their toy data names, <Name>_FullScreen_
+// materials, are not on the Xbox 360 disc). Some have a sharper copy: the collection tracker's
+// CollectibleTrackerIcons.pak holds 128x128 ones (the same pictures) of 20 of this game's own characters
+// (counted 2026-10-21), "textures/ColorMap,textures@!ui!Collections!ToyInventoryIcons!<path>`tga,
+// 111.igz" for a material's "GuiStandard_diffuse,...!ToyInventoryIcons!<path>`tga,101", and those
+// are taken instead. The menu shows an icon about twice as large as 88 (more at 4K), where the
+// GPU's bilinear filter makes it soft. So the first time the menu asks for an icon it is enlarged
+// 2x with a Lanczos-3 filter (sharper edges, on premultiplied alpha so the round edge stays clean)
+// and kept that way: 120 to 260 KB per icon on screen instead of 70 MB for all of them at start.
 // A variant without an entry of its own (most chase variants) shows its toy's default icon.
 
 #include "toy_images.h"
 
 #include <algorithm>
+#include <cctype>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
@@ -65,6 +71,24 @@ constexpr std::string_view kMaterialDir = "/materialInstances/ToyCollection/";
 constexpr std::string_view kTextureDir = "/textures/";
 constexpr std::string_view kCollectionPrefix = "Collection_";
 constexpr char kImageNamespace[] = "image";
+constexpr char kTrackerArchive[] = "CollectibleTrackerIcons.pak";
+constexpr std::string_view kIconPath = "textures@!ui!Collections!ToyInventoryIcons!";
+constexpr std::string_view kSharpSuffix = "`tga,111.igz";
+
+// The menu's symbols (SetArtImageProvider): the HUD's element badges,
+// "textures/GuiStandard_diffuse,textures@!ui!HealthHud_2015!Portraits!Elements!<Element>_HUD`tga,
+// 101.igz" in permanent.pak (88x88 DXT5, all ten elements, the same medallions as the collection
+// screen's), and the ability shop's coin, "...textures@!ui!AbilityShop_2015!coin_icon`tga,101.igz"
+// in juicedomain_permanent.pak (44x44). Stored upside down like the icons (seen 2026-10-21: the
+// flame and the leaves pointing down), enlarged like them when first asked for.
+constexpr char kElementArchive[] = "permanent.pak";
+constexpr std::string_view kElementTexture = "textures@!ui!HealthHud_2015!Portraits!Elements!";
+constexpr std::string_view kElementSuffix = "_HUD`tga,101.igz";
+constexpr char kCoinArchive[] = "juicedomain_permanent.pak";
+constexpr std::string_view kCoinTexture = "textures@!ui!AbilityShop_2015!coin_icon`tga,101.igz";
+// The menu's element names (portal_menu.h's "element:<name>" keys).
+constexpr std::string_view kElements[] = {"magic", "earth", "water", "fire",  "tech",
+                                          "undead", "life", "air",  "light", "dark"};
 
 constexpr uint32_t kToyIdField = 0x08;
 constexpr uint32_t kToyMaterialField = 0x20;
@@ -110,7 +134,7 @@ uint16_t VariantNumber(const IgzFile& igz, size_t object) {
 }
 
 // Icons smaller than this are enlarged by kEnlargeFactor when the menu first asks for them.
-constexpr int kEnlargeBelow = 128;
+constexpr int kEnlargeBelow = 256;
 constexpr int kEnlargeFactor = 2;
 
 void FlipVertically(FigureImage& image) {
@@ -182,6 +206,22 @@ std::shared_ptr<const FigureImage> Enlarge(const FigureImage& image, int factor)
 using ToyMap = std::unordered_map<uint16_t, Toy>;
 using IconMap = std::unordered_map<std::string, std::shared_ptr<const FigureImage>>;
 
+// The first picture of the archive's texture file `index`, upright (stored upside down); nullptr
+// if it can't be read.
+std::shared_ptr<FigureImage> ReadPicture(const IgaArchive& archive, size_t index) {
+  auto pixels = archive.Read(index);
+  if (!pixels) return nullptr;
+  auto tex = IgzFile::Parse(std::move(*pixels));
+  auto rgba = tex ? tex->DecodeFirstImage() : std::nullopt;
+  if (!rgba) return nullptr;
+  auto image = std::make_shared<FigureImage>();
+  image->width = rgba->width;
+  image->height = rgba->height;
+  image->rgba = std::move(rgba->pixels);
+  FlipVertically(*image);
+  return image;
+}
+
 void IndexToyData(const IgaArchive& archive, ToyMap& toys) {
   for (size_t i = 0; i < archive.size(); ++i) {
     const std::string& name = archive.name(i);
@@ -208,7 +248,33 @@ void IndexToyData(const IgaArchive& archive, ToyMap& toys) {
   }
 }
 
-void IndexIcons(const IgaArchive& archive, IconMap& icons) {
+// The tracker's sharper icons by their path under ToyInventoryIcons ("2015Characters!AirLock").
+using SharpMap = std::unordered_map<std::string, size_t>;
+SharpMap IndexSharpIcons(const IgaArchive& archive) {
+  SharpMap sharp;
+  for (size_t i = 0; i < archive.size(); ++i) {
+    const std::string& name = archive.name(i);
+    const size_t at = name.find(kIconPath);
+    if (at == std::string::npos || !EndsWith(name, kSharpSuffix)) continue;
+    sharp.emplace(name.substr(at + kIconPath.size(), name.size() - at - kIconPath.size() - kSharpSuffix.size()),
+                  i);
+  }
+  return sharp;
+}
+
+// The sharper copy of a material's texture ("GuiStandard_diffuse,textures@!ui!Collections!
+// ToyInventoryIcons!2015Characters!AirLock`tga,101"), or nullptr.
+std::shared_ptr<FigureImage> SharpIcon(const IgaArchive* tracker, const SharpMap& sharp,
+                                       const std::string& texture) {
+  const size_t at = texture.find(kIconPath);
+  const size_t end = texture.rfind('`');
+  if (!tracker || at == std::string::npos || end == std::string::npos || end < at) return nullptr;
+  auto it = sharp.find(texture.substr(at + kIconPath.size(), end - at - kIconPath.size()));
+  return it == sharp.end() ? nullptr : ReadPicture(*tracker, it->second);
+}
+
+void IndexIcons(const IgaArchive& archive, IconMap& icons, const IgaArchive* tracker,
+                const SharpMap& sharp) {
   // The textures by file name, then each material's.
   std::unordered_map<std::string, size_t> textures;
   for (size_t i = 0; i < archive.size(); ++i) {
@@ -235,20 +301,42 @@ void IndexIcons(const IgaArchive& archive, IconMap& icons) {
       if (ext->second != kImageNamespace) continue;
       auto texture = textures.find(ext->first);
       if (texture == textures.end()) break;
-      auto pixels = archive.Read(texture->second);
-      if (!pixels) break;
-      auto tex = IgzFile::Parse(std::move(*pixels));
-      auto rgba = tex ? tex->DecodeFirstImage() : std::nullopt;
-      if (!rgba) break;
-      auto image = std::make_shared<FigureImage>();
-      image->width = rgba->width;
-      image->height = rgba->height;
-      image->rgba = std::move(rgba->pixels);
-      FlipVertically(*image);  // stored upside down
-      icons[material] = std::move(image);
+      auto image = SharpIcon(tracker, sharp, ext->first);
+      if (!image) image = ReadPicture(archive, texture->second);
+      if (image) icons[material] = std::move(image);
       break;
     }
   }
+}
+
+// The menu's symbols in `archive`: the element badges (kElementTexture + <Element> +
+// kElementSuffix) as "element:<element>" and the coin (kCoinTexture) as "ui:gold". Returns how
+// many it read.
+int IndexArt(const IgaArchive& archive, IconMap& icons) {
+  int count = 0;
+  for (size_t i = 0; i < archive.size(); ++i) {
+    const std::string& name = archive.name(i);
+    std::string key;
+    if (EndsWith(name, kCoinTexture)) {
+      key = "ui:gold";
+    } else if (const size_t at = name.find(kElementTexture);
+               at != std::string::npos && EndsWith(name, kElementSuffix)) {
+      std::string element = name.substr(at + kElementTexture.size(),
+                                        name.size() - at - kElementTexture.size() - kElementSuffix.size());
+      std::transform(element.begin(), element.end(), element.begin(),
+                     [](unsigned char c) { return char(std::tolower(c)); });
+      if (std::find(std::begin(kElements), std::end(kElements), element) == std::end(kElements)) continue;
+      key = "element:" + element;
+    } else {
+      continue;
+    }
+    if (icons.contains(key)) continue;
+    if (auto image = ReadPicture(archive, i)) {
+      icons[key] = std::move(image);
+      ++count;
+    }
+  }
+  return count;
 }
 
 void Load(std::filesystem::path rom) {
@@ -262,7 +350,13 @@ void Load(std::filesystem::path rom) {
   ToyMap toys;
   IconMap icons;
   IndexToyData(*toydata, toys);
-  IndexIcons(*materials, icons);
+  auto tracker = IgaArchive::Open(rom / "archives" / kTrackerArchive);
+  const SharpMap sharp = tracker ? IndexSharpIcons(*tracker) : SharpMap{};
+  IndexIcons(*materials, icons, tracker ? &*tracker : nullptr, sharp);
+  int symbols = 0;
+  for (const char* name : {kElementArchive, kCoinArchive}) {
+    if (auto art = IgaArchive::Open(rom / "archives" / name)) symbols += IndexArt(*art, icons);
+  }
   size_t variants = 0;
   for (const auto& [id, toy] : toys) variants += toy.variants.size();
   const size_t toy_count = toys.size(), icon_count = icons.size();
@@ -272,8 +366,8 @@ void Load(std::filesystem::path rom) {
     g_icons = std::move(icons);
     g_ready = true;
   }
-  REXLOG_INFO("Toy images: {} toys with {} variants, {} icons, in {} ms", toy_count, variants,
-              icon_count,
+  REXLOG_INFO("Toy images: {} toys with {} variants, {} icons and {} symbols, in {} ms", toy_count,
+              variants, icon_count - symbols, symbols,
               std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start).count());
 }
 
@@ -303,6 +397,10 @@ void InstallToyImages(const std::filesystem::path& rom_dir) {
   std::thread(Load, rom_dir).detach();
   skylanders::SetFigureImageProvider(
       [](uint16_t id, uint16_t variant) { return Lookup(id, variant); });
+  skylanders::SetArtImageProvider([](const std::string& key) -> std::shared_ptr<const FigureImage> {
+    std::lock_guard<std::mutex> lock(g_mutex);
+    return g_ready ? Icon(key) : nullptr;
+  });
 }
 
 }  // namespace superchargersrecomp
