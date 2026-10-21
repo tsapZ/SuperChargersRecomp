@@ -12,3 +12,36 @@
 # 12-byte sub_8252E1F0 next to it, two tiny functions back to back. Registering the start splits
 # them; no size given, the analyzer finds the end.
 0x8252E1F8 = {}
+
+# More starts of the same shape, found in the whole code (a dump of guest memory with the input
+# script's `save`): right after a `blr`, an instruction that is no known start, followed by one that
+# is, as at 0x8252E1F8. A function the analyzer reached through a branch to its second instruction
+# while its real start is only in a pointer table; a start that was in fact the second half of the
+# function before only splits it, which the generated code handles as a tail call.
+0x8263E7EC = {}
+0x826AD588 = {}
+0x8304E284 = {}
+0x8304E2B4 = {}
+0x832AABD8 = {}
+0x8330A288 = {}
+0x833100F0 = {}
+0x83310120 = {}
+0x8332D9B0 = {}
+0x83338EB0 = {}
+0x8333A1A8 = {}
+0x83367920 = {}
+0x833BE048 = {}
+0x833E60A8 = {}
+0x833EE52C = {}
+0x833EE60C = {}
+0x833FCE40 = {}
+0x8342FE2C = {}
+0x83445860 = {}
+0x83445870 = {}
+0x8352FCE8 = {}
+0x835345B0 = {}
+0x83550C20 = {}
+0x83550C28 = {}
+0x83550CF0 = {}
+0x8355B7E8 = {}
+0x835BC410 = {}
