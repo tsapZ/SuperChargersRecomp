@@ -108,6 +108,8 @@ target_include_directories(superchargersrecomp_verify PRIVATE "${REXSDK_DIR}/thi
 target_sources(superchargersrecomp_verify PRIVATE "${REXSDK_DIR}/thirdparty/crypto/sha256.cpp")
 
 target_link_libraries(superchargersrecompiled PRIVATE superchargersrecomp_verify skylanders_portal_rex)
+# The exe's icon: the game's logo from the owner's disc (rom/nxeart), made at build time (#5).
+skylanders_game_icon(superchargersrecompiled "${CMAKE_CURRENT_SOURCE_DIR}/rom")
 target_compile_definitions(superchargersrecompiled PRIVATE SUPERCHARGERSRECOMP_XEX_SHA256="${SUPERCHARGERSRECOMP_XEX_SHA256}")
 
 enable_testing()
