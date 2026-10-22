@@ -6,6 +6,7 @@
 #include <rex/cvar.h>
 
 #include "portal_rex/achievements_ui.h"
+#include "portal_rex/player_menu.h"
 
 namespace superchargersrecomp {
 namespace {
@@ -231,12 +232,14 @@ SettingsPage GamePage() {
   // The five languages of src/localization.cpp; German and Italian through the region hook.
   // "auto" follows the Windows display language if it is one of them, else English.
   Setting language{"language", "Language", "Sprache",
-                   "Text and voices. Automatic: the language of Windows, if the game has it.",
-                   "Texte und Stimmen. Automatisch: die Sprache von Windows, wenn das Spiel sie hat.",
+                   "Text and voices. Automatic: the language of Windows, if the game has it. The "
+                   "European discs have English and German, or Spanish and Italian.",
+                   "Texte und Stimmen. Automatisch: die Sprache von Windows, wenn das Spiel sie hat. "
+                   "Die europ\xC3\xA4ischen Discs haben Englisch und Deutsch, oder Spanisch und "
+                   "Italienisch.",
                    {{"auto", "Automatic", "Automatisch"},
                     {"english", "English", "English"},
                     {"german", "Deutsch", "Deutsch"},
-                    {"french", "Fran\xC3\xA7" "ais", "Fran\xC3\xA7" "ais"},
                     {"spanish", "Espa\xC3\xB1ol", "Espa\xC3\xB1ol"},
                     {"italian", "Italiano", "Italiano"}}};
   language.restart = true;
@@ -261,6 +264,8 @@ SettingsPage GamePage() {
        "schneller.",
        {{"0", "As in the game", "Wie im Spiel"}, {"1.5", "Short", "Kurz"}}});
   page.settings.push_back(skylanders::AchievementsSetting());
+  // Spiel beenden / neu starten: a controller alone can't press Alt+F4.
+  skylanders::AddQuitSettings(page);
   return page;
 }
 
@@ -349,10 +354,14 @@ SettingsPage ControlsPage() {
       {{"ls+rs", "L3+R3 (press both sticks)", "L3+R3 (beide Sticks dr\xC3\xBC" "cken)"},
        {"back+lb", "Back+LB", "Back+LB"},
        {"", "Off", "Aus"}}));
+  // The player menu from here too (its buttons can be switched off).
+  page.settings.push_back(skylanders::PlayerMenuSetting());
   page.settings.push_back(ButtonSetting(
       "settings_menu_buttons", "Settings", "Einstellungen",
       "Opens this menu (keyboard: F4).", "\xC3\x96" "ffnet dieses Men\xC3\xBC (Tastatur: F4).",
-      {{"back+rb", "Back+RB", "Back+RB"}, {"back+x", "Back+X", "Back+X"}, {"", "Off", "Aus"}}));
+      {{"back+rb", "Back+RB", "Back+RB"}, {"back+x", "Back+X", "Back+X"}}));
+  // No "Aus" here (it was until 2026-10-23): with it a controller could no longer open this
+  // menu, nor its Erfolge or Spiel beenden.
   page.settings.push_back(
       {"mnk_mode", "Keyboard and mouse", "Tastatur und Maus",
        "Play with the keyboard as a controller.", "Mit der Tastatur als Controller spielen."});
@@ -372,8 +381,8 @@ std::vector<SettingsPage> BuildSettingsPages(std::function<void()> open_all_sett
                                      ControlsPage()};
   SettingsPage advanced{"Advanced", "Erweitert", {}};
   Setting all;
-  all.en = "All settings (developers)";
-  all.de = "Alle Einstellungen (Entwickler)";
+  all.en = "All settings (developers, keyboard and mouse)";
+  all.de = "Alle Einstellungen (Entwickler, Tastatur und Maus)";
   all.help_en =
       "The SDK's full list of every setting (F10). Its \"Save to config\" button rewrites the "
       "whole settings file and drops its comments; this menu saves only what you change.";
