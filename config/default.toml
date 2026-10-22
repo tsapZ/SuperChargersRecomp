@@ -142,6 +142,35 @@ address = 0x8360C7E8
 name = "MotionBlurStrengthHook"
 registers = ["r3"]
 
+# A shorter figure intro (figure_intro_seconds, as Swap Force's option; Swap Force #60).
+# 0x829D7CB0 is fcmpu cr6,f0,f30 in sub_829D7B78, which checks every frame whether a figure's
+# intro time is up: f0 the time since it began (the magic moment's +208 counter), f30 its length
+# (the tuning or the figure's own); when f0 is larger it fires an event on the figure and marks
+# the time done (+617). Found as the function shaped like Swap Force's intro check (sub_829BFFF8:
+# same done flag, length and time steps, same comparison). The hook only shortens f30, which the
+# function saved and doesn't read after the comparison (src/hooks/figure_intro_hook.cpp).
+[[midasm_hook]]
+address = 0x829D7CB0
+name = "FigureIntroLengthHook"
+registers = ["f30"]
+
+# That time check alone doesn't end the intro: sub_82A135B8 (the magic moment's update in state 6)
+# ends it once sub_82E08770 says the figure's intro animation is over, then sub_82A0EF38 /
+# sub_82A0B2E0 set the state to 8. 0x82A137DC (one player) and 0x82A136D8 (each figure with
+# several) are the clrlwi r9,r3,24 right after those calls, r3 the answer, r30 the magic moment.
+# Found 2026-10-22 with a write watch on the state (+48) during a scripted placement. The hook
+# turns "not over" into "over" only once the intro ran figure_intro_seconds (0: never), so the
+# game's own ending runs; r3 is read only by that clrlwi.
+[[midasm_hook]]
+address = 0x82A137DC
+name = "FigureIntroEndHook"
+registers = ["r3", "r30"]
+
+[[midasm_hook]]
+address = 0x82A136D8
+name = "FigureIntroEndHook"
+registers = ["r3", "r30"]
+
 [functions]
 # 0x8252E1F8 is called through a pointer (the first boot ended with "Call to invalid or
 # unregistered function at guest address 0x8252E1F8" 3 s in); the analyzer had it inside the

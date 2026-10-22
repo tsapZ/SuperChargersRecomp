@@ -251,6 +251,15 @@ SettingsPage GamePage() {
                            "Er\xC3\xB6" "ffnungsfilm \xC3\xBC" "berspringen",
                            "Skips the long movie at the start of a new game.",
                            "\xC3\x9C" "berspringt den langen Film beim Start eines neuen Spiels."});
+  page.settings.push_back(
+      {"figure_intro_seconds", "Skylander intro", "Skylander-Vorstellung",
+       "When a Skylander comes onto the portal, the game shows it with its name for about 3 to 4 "
+       "seconds before you can play. Short: 1.5 seconds, the figure change is about 3 seconds "
+       "quicker.",
+       "Wenn ein Skylander aufs Portal kommt, zeigt ihn das Spiel etwa 3 bis 4 Sekunden lang mit "
+       "Namen, bevor man spielen kann. Kurz: 1,5 Sekunden, der Figurwechsel ist etwa 3 Sekunden "
+       "schneller.",
+       {{"0", "As in the game", "Wie im Spiel"}, {"1.5", "Short", "Kurz"}}});
   page.settings.push_back(skylanders::AchievementsSetting());
   return page;
 }

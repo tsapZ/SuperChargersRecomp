@@ -151,3 +151,11 @@ launcher's achievements screen.
   the start of its parameter setter (`sub_8360C7E8`, 0x8360C7E8) writes the game's value times
   the setting. Checked on the tunnel ride with the throttle held: at 2 and 4 the gear bits are
   visibly streaked, at 0 the picture is a little sharper than at the game's 1 (#3).
+- **Skylander-Vorstellung: Kurz (F4 > Spiel), as in Swap Force (SwapForceRecomp #60):** the
+  figure's intro after the placement ends after 1.5 s. The intro's time check (`sub_829D7B78`,
+  0x829D7CB0) alone doesn't end it: the magic moment's update in state 6 (`sub_82A135B8`) waits
+  for the figure's intro animation (`sub_82E08770`); a write watch on the state (+48) found that.
+  The hooks shorten the time and, once the intro ran 1.5 s, answer "over" for the animation
+  (0x82A137DC, 0x82A136D8), so the game's own ending runs. Checked in the first level with Chop
+  Chop at the prompt: the tunnel ride starts about 3 s after the placement instead of 6 s, camera
+  and HUD as usual.

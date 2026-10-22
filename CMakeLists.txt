@@ -58,6 +58,7 @@ set(SUPERCHARGERSRECOMP_SOURCES
     src/dev/gpu_diagnostics.cpp
     src/dev/input_script.cpp
     src/dev/write_watch.cpp
+    src/hooks/figure_intro_hook.cpp
     src/hooks/frame_rate_hook.cpp
     src/hooks/fxaa_scale_hook.cpp
     src/hooks/intro_skip_hook.cpp
