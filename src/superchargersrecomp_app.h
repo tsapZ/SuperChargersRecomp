@@ -40,6 +40,7 @@
 #include "portal_rex/player_menu.h"
 #include "portal_rex/settings_menu.h"
 #include "portal_rex/settings_schema.h"
+#include "portal_rex/title_music.h"
 #include "settings_pages.h"
 #include "portal_rex/portal_rex.h"
 #include "xex_verify.h"
@@ -101,6 +102,13 @@ class SuperchargersrecompApp : public rex::ReXApp {
     skylanders::ShutdownSettingsMenu();
   }
 
+  // The title screen's music: the main theme from the interactive music's streamed bank, the only
+  // track the game streams at the title (found with a run logging its file reads, 2026-10-22; the
+  // same name on both European discs).
+  static skylanders::TitleMusicSource TitleMusic() {
+    return {{"archives/INTER_Streamed_bank.pak", "INTER_Main_Theme"}};
+  }
+
   void OnPreSetup(rex::RuntimeConfig& config) override {
     // Before the GPU plugin creates its device (testing only, gpu_crash_diagnostics).
     superchargersrecomp::EnableGpuCrashDiagnostics();
@@ -147,6 +155,8 @@ class SuperchargersrecompApp : public rex::ReXApp {
     // then quit, before a window opens (--settings_schema, settings_schema.h).
     skylanders::WriteSettingsSchemaIfRequested(
         config, [] { return superchargersrecomp::BuildSettingsPages([] {}); }, settings_path_);
+    // For the launcher: the title music from the disc as a file, then quit (--export_title_music).
+    skylanders::ExportTitleMusicIfRequested(game_data_root(), TitleMusic());
   }
 
   void OnPostSetup() override {
@@ -156,6 +166,9 @@ class SuperchargersrecompApp : public rex::ReXApp {
     // The figure pictures this game reads from the disc, also as files for the Core of Light
     // launcher's figure library (Documents\Skylanders\Pictures\SuperChargers).
     skylanders::StartFigurePictureCache(skylanders::SharedPicturesDir(user_data_root(), "SuperChargers"));
+    // And the title music, once (title_music.h).
+    skylanders::StartTitleMusicExport(game_data_root(), TitleMusic(),
+                                      skylanders::SharedPicturesDir(user_data_root(), "SuperChargers"));
     // A real crash logs where in the game it happened (guest call chain and registers).
     superchargersrecomp::InstallCrashReport(runtime()->memory());
     // Pictures for the portal menu from the game's own files: the collection icons of every
