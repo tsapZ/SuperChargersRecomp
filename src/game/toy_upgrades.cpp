@@ -16,7 +16,8 @@
 // - The names and descriptions are in <Name>_CharacterData_es.lng next to it (game_data.h:
 //   "CSkillUpgrade::_skillName", "CUpgrade::_upgradeDescription", the paths'
 //   "igNamedObject::_name" and "CSkillsUpgradePath::_description"; the German text on the German
-//   disc). The disc has no English text: the English menu names the upgrades after their objects
+//   disc). The German menu takes the _de file (the En/De disc), else _es; the English menu the
+//   _en file, and where the disc has none (the Es/It disc) names the upgrades after their objects
 //   ("..._0_PenguinDrill" -> "Penguin Drill").
 // - Which bit of the figure's upgrade flags an upgrade is, as in Swap Force: the basic upgrades
 //   from bit 2, then the two paths sharing the same bits (bit 1 says which path), the Soul Gem
@@ -65,7 +66,11 @@ using skylanders::FigureUpgrades;
 
 constexpr std::string_view kKeyPrefix = "upgrade:";
 constexpr char kCharacterSuffix[] = "_CharacterData.igz";
-constexpr char kTextSuffix[] = "_CharacterData_es.lng";
+// German: the En/De disc's _de file, else the _es one (German on the Es/It disc after
+// tools/german_text.py).
+constexpr char kTextSuffix[] = "_CharacterData_de.lng";
+constexpr char kTextSuffixEs[] = "_CharacterData_es.lng";
+constexpr char kTextSuffixEn[] = "_CharacterData_en.lng";  // the En/De disc only
 constexpr char kPicturesSuffix[] = "_AbilityUpgrades.pak";
 constexpr std::string_view kMaterialDir = "/materialinstances/";
 constexpr char kTextureDir[] = "/textures/";
@@ -186,7 +191,13 @@ std::shared_ptr<const Character> ReadCharacter(const std::string& name, bool ger
   if (components.empty()) return nullptr;
   GameText text;
   if (german) {
-    if (auto lng = ReadFile(*pak, "/" + name + kTextSuffix)) text = ReadText(*lng);
+    if (auto lng = ReadFile(*pak, "/" + name + kTextSuffix)) {
+      text = ReadText(*lng);
+    } else if (auto lng_es = ReadFile(*pak, "/" + name + kTextSuffixEs)) {
+      text = ReadText(*lng_es);
+    }
+  } else if (auto lng_en = ReadFile(*pak, "/" + name + kTextSuffixEn)) {
+    text = ReadText(*lng_en);
   }
   const auto names = ObjectNames(*igz);
   const auto types = ObjectTypes(*igz);

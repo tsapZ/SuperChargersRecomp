@@ -1,8 +1,8 @@
 This installer does not include Skylanders: SuperChargers or any of its data.
 
 You will need your own legal copy of the Xbox 360 disc, either as an ISO file or an
-already-extracted folder. Only the European (PAL) release is supported -- the next step
-checks this automatically.
+already-extracted folder. Two European (PAL) discs are supported: the English / German one
+(the one to use) and the Spanish / Italian one. The next step checks this automatically.
 
 This is an alpha build and may contain bugs, crashes, or other issues.
 

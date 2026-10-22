@@ -226,7 +226,8 @@ begin
   else if ResultCode = 3 then
     ErrorMsg := 'Could not read ' + CandidateXex + ' to check its version.'
   else if ResultCode = 2 then
-    ErrorMsg := 'This is not the supported Skylanders: SuperChargers version (Xbox 360). ' +
+    ErrorMsg := 'This is not a supported Skylanders: SuperChargers version (Xbox 360): ' +
+      'the European English / German or Spanish / Italian disc. ' +
       'The installer will not continue with an unsupported copy of the game.'
   else
     ErrorMsg := 'The version-check tool reported an unexpected error (code ' + IntToStr(ResultCode) + ').';

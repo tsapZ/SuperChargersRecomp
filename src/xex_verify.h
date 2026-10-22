@@ -22,8 +22,8 @@ struct XexCheckResult {
 // Lowercase hex SHA-256 of the file at `path`, or nullopt if it cannot be read completely.
 std::optional<std::string> Sha256File(const std::filesystem::path& path);
 
-// Compares the file's SHA-256 with `expected_sha256` (64 hex chars, any case, surrounding
-// whitespace ignored).
+// Compares the file's SHA-256 with `expected_sha256`: one or more 64-hex-character hashes, comma
+// separated (any case, surrounding whitespace ignored); a match with any of them is a Match.
 XexCheckResult VerifyXex(const std::filesystem::path& xex, std::string_view expected_sha256);
 
 // UTF-8 form of a path. Unlike path::string(), never throws for characters outside the ANSI code page.

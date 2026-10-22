@@ -2,17 +2,17 @@
 
 Updated at the end of every session. Only record what a build actually did.
 
-## Current state (2026-10-21)
+## Current state (2026-10-22)
 
 | Area | State |
 |---|---|
 | Repository | scaffolded from GiantsRecomp: build, app, portal (emulated, USB, hybrid), portal / player / settings menus, achievements, input scripts and test tools; none of its game hooks or file readers |
-| Game data | disc extracted into `rom/` (2906 files), `default.xex` hash pinned |
+| Game data | disc extracted into `rom/` (2906 files); two discs run, their `default.xex` hashes pinned (docs/game/discs.md) |
 | SDK | our fork `tsapZ/rexglue-sdk`, branch `skylanders`, shared with the other games |
 | Codegen | works with 28 `config/default.toml` entries: function starts the analyzer put one instruction late |
 | Boot | ✅ logo movies, the title screen ("PULSA START"), "¡Elige tu estilo de juego!" (difficulty), the mode books (Aventura, Carreras), the save slots, then the long opening movie (Start pauses it, doesn't skip it); no crash in 5 minutes |
 | Portal menu | ✅ opens with Guide; shows the game's own round collection icons for every Skylander, vehicle, trap and magic item, each figure's variant where the game has one; opens by itself when the game asks for a Skylander, the portal check on the "too many" screens; a vehicle's card shows its terrain (land, sea, sky) with the game's symbol; the details view shows the hat (name, icon, stats) and every Skylander's upgrade tree with the game's pictures and prices |
-| Languages | this disc has **Spanish and Italian only** (347 language files each, `*_es.pak` / `*_it.pak`); German text and voices from the owner's English / German 360 disc with tools/german_text.py (`--xbox360`, applied to this machine's rom/) |
+| Languages | the European **English / German** disc runs as it is (its own German and English); the European Spanish / Italian disc (347 language files each, `*_es.pak` / `*_it.pak`) takes German or English from the En/De disc with tools/german_text.py |
 
 ## 2026-10-21: session log
 
@@ -65,10 +65,10 @@ Updated at the end of every session. Only record what a build actually did.
   (width / height 1.42 in both), more of the tunnel at both sides; the HUD stretched.
 - **German from the owner's English / German Xbox 360 disc** (tools/german_text.py `--xbox360`,
   `--language de|en`): that disc ("Skylanders - SuperChargers (Europe) (En,De)") has the same
-  2748 archives, with a German and an English twin of every Spanish file, but its default.xex is a
-  different build (the same size, other function addresses, e.g. 0x82698078 there for 0x82698108
-  here, checked by running codegen on it), so this port stays on the Spanish / Italian xex and
-  takes only the files: 1146 text files in 362 archives, the licence, and 10833 voices in 341
+  2748 archives, with a German and an English twin of every Spanish file. Its default.xex was
+  thought to be a different build here (codegen on it had put function starts elsewhere, e.g.
+  0x82698078 for 0x82698108); that was the analyzer without this port's function list, not the
+  code -- see the 2026-10-22 entry: the disc now runs as it is. The tool takes only the files: 1146 text files in 362 archives, the licence, and 10833 voices in 341
   voice archives, the game's own XMA banks (no conversion as with a PS3 disc), in 9 s. The 360
   platform strings come as a twin too ("Drücke Start"). On copies the tool was applied and undone
   (`--restore`, identical md5). Checked by script: the menus, "Sofort-Skylander verwenden" /
@@ -159,3 +159,17 @@ launcher's achievements screen.
   (0x82A137DC, 0x82A136D8), so the game's own ending runs. Checked in the first level with Chop
   Chop at the prompt: the tunnel ride starts about 3 s after the placement instead of 6 s, camera
   and HUD as usual.
+- **The English / German disc runs as it is** (docs/game/discs.md): its default.xex and the
+  Spanish / Italian one were disassembled by codegen and compared at every address: 4,810,671
+  instructions, all the same (the same build, changelist 2785777; the earlier "other function
+  addresses" came from codegen without this port's `[functions]` list). Both hashes are pinned
+  (`docs/game/default.xex.sha256`, one per line; the game, the installer's check tool and the
+  launcher accept either), the intro skip knows the En/De disc's opening movie (3905 frames), and
+  the hats' and upgrade trees' texts come from the `_de` files, else from `_es`. Checked by script
+  on the En/De disc with copied user data: hash check passed, the opening movie skipped, menus and
+  the first level in German ("Halte RT zum Beschleunigen!"), the hats with German names (1847
+  texts).
+- **Nothing skipped by default** (the owner's choice, 2026-10-22): `skip_intro` is off, the logo
+  movies play as on the console (the option skips them); the settings templates say so too. The
+  16x texture filter now comes from skylanders-portal (`ApplyGraphicsDefaults`), so the Core of
+  Light launcher shows 16x as the game uses it.

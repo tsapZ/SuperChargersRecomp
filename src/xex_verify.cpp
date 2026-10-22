@@ -46,12 +46,24 @@ std::optional<std::string> Sha256File(const std::filesystem::path& path) {
   return hasher.getHash();
 }
 
-XexCheckResult VerifyXex(const std::filesystem::path& xex, std::string_view expected_sha256) {
-  const auto expected = NormalizeHash(expected_sha256);
-  if (!expected) return {XexCheck::BadExpected, {}};
+XexCheckResult VerifyXex(const std::filesystem::path& xex, std::string_view expected_list) {
+  // One hash per supported disc (docs/game/discs.md), comma separated; the file is read once.
+  std::vector<std::string> expected;
+  for (size_t start = 0;;) {
+    const size_t comma = expected_list.find(',', start);
+    const auto one = NormalizeHash(expected_list.substr(
+        start, comma == std::string_view::npos ? std::string_view::npos : comma - start));
+    if (!one) return {XexCheck::BadExpected, {}};
+    expected.push_back(*one);
+    if (comma == std::string_view::npos) break;
+    start = comma + 1;
+  }
   const auto actual = Sha256File(xex);
   if (!actual) return {XexCheck::Unreadable, {}};
-  return {*actual == *expected ? XexCheck::Match : XexCheck::Mismatch, *actual};
+  for (const auto& hash : expected) {
+    if (*actual == hash) return {XexCheck::Match, *actual};
+  }
+  return {XexCheck::Mismatch, *actual};
 }
 
 std::string Utf8(const std::filesystem::path& p) {
@@ -69,7 +81,7 @@ std::string DescribeXexProblem(const std::filesystem::path& xex, const XexCheckR
              "\nPut your extracted Skylanders: SuperChargers disc contents in the game folder "
              "(default.xex must be at its top level).";
     case XexCheck::Mismatch:
-      return "default.xex is not the supported build.\nExpected SHA-256: " +
+      return "default.xex is not a supported build.\nExpected SHA-256 (one of): " +
              std::string(expected_sha256) +
              "\nFound SHA-256:    " + result.actual_sha256;
     case XexCheck::BadExpected:

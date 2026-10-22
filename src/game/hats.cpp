@@ -11,9 +11,10 @@
 // - The names are only in the language files next to it (CollectibleTrackers_<language>.lng: an
 //   igLocalizedStringData per text, +0x08 the text, +0x0C the object and +0x10 the field, each an
 //   index into the file's external names, objects and "metafield" fields counted separately;
-//   "CHatCollectibleTracker::_hatName"). The disc has no English ones, so the English menu makes
-//   one from the hat's name ("Hat_CowboyHat" -> "Cowboy Hat"); the German menu takes the _es
-//   file, which holds the German text on the German disc this port is played with.
+//   "CHatCollectibleTracker::_hatName"). The German menu takes the _de file (the European
+//   English / German disc), else the _es one, which holds the German text on the Spanish /
+//   Italian disc after tools/german_text.py; the English menu the _en file, and where the disc has
+//   none (the Es/It disc) makes a name from the hat's ("Hat_CowboyHat" -> "Cowboy Hat").
 // - The attributes' names: JuiceDomain_FrontEnd.pak LooseData/systemData.igz, its
 //   CCharacterAttributeStringHashTable (attribute -> English name: 3 "Armor", 0x24 "Elemental
 //   Power"; the numbers differ between the games), translated by systemData_es.lng's
@@ -54,10 +55,13 @@ using skylanders::HatInfo;
 
 constexpr char kTrackerArchive[] = "permanent.pak";
 constexpr std::string_view kTrackerFile = "/LooseData/CollectibleTrackers.igz";
-constexpr std::string_view kTrackerText = "/LooseData/CollectibleTrackers_es.lng";
+constexpr std::string_view kTrackerText = "/LooseData/CollectibleTrackers_de.lng";
+constexpr std::string_view kTrackerTextEs = "/LooseData/CollectibleTrackers_es.lng";
+constexpr std::string_view kTrackerTextEn = "/LooseData/CollectibleTrackers_en.lng";
 constexpr char kSystemArchive[] = "JuiceDomain_FrontEnd.pak";
 constexpr std::string_view kSystemFile = "/LooseData/systemData.igz";
-constexpr std::string_view kSystemText = "/LooseData/systemData_es.lng";
+constexpr std::string_view kSystemText = "/LooseData/systemData_de.lng";
+constexpr std::string_view kSystemTextEs = "/LooseData/systemData_es.lng";
 constexpr char kIconArchive[] = "CollectibleTrackerIcons.pak";
 constexpr std::string_view kMaterialDir = "/materialInstances/";
 constexpr std::string_view kTextureDir = "/textures/";
@@ -86,7 +90,8 @@ std::mutex g_mutex;
 bool g_ready = false;
 std::unordered_map<uint16_t, Hat> g_hats;
 std::unordered_map<uint32_t, std::string> g_attribute_names;   // English, by attribute
-GameText g_hat_text;                                           // the _es files (German)
+GameText g_hat_text;                                           // the German texts (_de or _es)
+GameText g_hat_text_en;                                        // the English ones (_en), if any
 std::unordered_map<uint32_t, std::string> g_attribute_german;  // by the English name's hash
 std::unordered_map<uint32_t, std::shared_ptr<const HatInfo>> g_infos;  // hat << 1 | German
 
@@ -119,7 +124,7 @@ std::shared_ptr<const FigureImage> MaterialPicture(const IgaArchive& archive,
   return nullptr;
 }
 
-// "Hat_CowboyHat" -> "Cowboy Hat", for the English menu (the disc has no English text).
+// "Hat_CowboyHat" -> "Cowboy Hat", for the English menu where the disc has no English text.
 std::string HatName(std::string_view object) {
   if (object.starts_with(kHatPrefix)) object.remove_prefix(kHatPrefix.size());
   return Humanize(object);
@@ -172,7 +177,13 @@ void Load(std::filesystem::path rom) {
     hats[uint16_t(id)] = std::move(hat);
   }
   GameText hat_text;
-  if (auto lng = ReadFile(*trackers, kTrackerText)) hat_text = ReadText(*lng);
+  if (auto lng = ReadFile(*trackers, kTrackerText)) {
+    hat_text = ReadText(*lng);
+  } else if (auto lng_es = ReadFile(*trackers, kTrackerTextEs)) {
+    hat_text = ReadText(*lng_es);
+  }
+  GameText hat_text_en;
+  if (auto lng_en = ReadFile(*trackers, kTrackerTextEn)) hat_text_en = ReadText(*lng_en);
   std::unordered_map<uint32_t, std::string> attribute_names, attribute_german;
   if (system) {
     if (auto sys = ReadFile(*system, kSystemFile)) {
@@ -182,24 +193,27 @@ void Load(std::filesystem::path rom) {
                      [&](uint32_t attribute, uint32_t text) { attribute_names[attribute] = sys->StringAt(text); });
       }
     }
-    if (auto lng = ReadFile(*system, kSystemText)) {
+    auto lng = ReadFile(*system, kSystemText);
+    if (!lng) lng = ReadFile(*system, kSystemTextEs);
+    if (lng) {
       GameText text = ReadText(*lng);
       attribute_german = std::move(text.tables[kAttributeNamesField]);
     }
   }
   const size_t hat_count = hats.size(), name_count = hat_text.fields.size(),
-               attribute_count = attribute_names.size();
+               english_count = hat_text_en.fields.size(), attribute_count = attribute_names.size();
   {
     std::lock_guard<std::mutex> lock(g_mutex);
     g_hats = std::move(hats);
     g_hat_text = std::move(hat_text);
+    g_hat_text_en = std::move(hat_text_en);
     g_attribute_names = std::move(attribute_names);
     g_attribute_german = std::move(attribute_german);
     g_infos.clear();
     g_ready = true;
   }
-  REXLOG_INFO("Hats: {} hats ({} with a picture), {} texts, {} attribute names", hat_count, pictures,
-              name_count, attribute_count);
+  REXLOG_INFO("Hats: {} hats ({} with a picture), {} texts, {} English texts, {} attribute names",
+              hat_count, pictures, name_count, english_count, attribute_count);
 }
 
 std::shared_ptr<const HatInfo> InfoFor(uint16_t number) {
@@ -211,10 +225,9 @@ std::shared_ptr<const HatInfo> InfoFor(uint16_t number) {
   auto hat = g_hats.find(number);
   if (hat == g_hats.end()) return nullptr;
   auto info = std::make_shared<HatInfo>();
-  if (german) {
-    auto text = g_hat_text.fields.find(hat->second.object + "|" + kHatNameField);
-    if (text != g_hat_text.fields.end()) info->name = text->second;
-  }
+  const GameText& texts = german ? g_hat_text : g_hat_text_en;
+  auto text = texts.fields.find(hat->second.object + "|" + kHatNameField);
+  if (text != texts.fields.end()) info->name = text->second;
   if (info->name.empty()) info->name = HatName(hat->second.object);
   if (hat->second.picture) info->image = std::string(kPictureKey) + std::to_string(number);
   for (const auto& [attribute, amount] : hat->second.stats) {

@@ -20,7 +20,9 @@
 
 #include "ultrawide_hook.h"
 
-REXCVAR_DEFINE_BOOL(skip_intro, true, "Game",
+// Off by default (the owner's choice, 2026-10-22): the game starts as on the console, with its
+// logo movies; skipping them is the option.
+REXCVAR_DEFINE_BOOL(skip_intro, false, "Game",
                     "Skip the Activision and Vicarious Visions logo movies at startup.");
 REXCVAR_DEFINE_BOOL(skip_opening_movie, false, "Game",
                     "Skip the opening movie when starting a new game.");
@@ -34,11 +36,13 @@ struct Movie {
   const char* name;
 };
 
-// Header values read from the disc's files (all "KB2i").
+// Header values read from the discs' files (all "KB2i"). The logos are the same on both European
+// discs; the opening movie's size differs with its voices (Spanish / Italian or English / German).
 constexpr Movie kMovies[] = {
     {0x0065D818, 226, false, "archives/Bumper_ATVI.bk2"},     // Activision logo
     {0x00803C9C, 270, false, "archives/Bumper_VVisions.bk2"}, // Vicarious Visions logo
-    {0x06F40788, 3905, true, "archives/FMV01.bk2"},           // new-game opening movie
+    {0x06F40788, 3905, true, "archives/FMV01.bk2"},           // new-game opening movie (Es/It disc)
+    {0x06F7B1E8, 3905, true, "archives/FMV01.bk2"},           // new-game opening movie (En/De disc)
 };
 
 }  // namespace

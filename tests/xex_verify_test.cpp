@@ -69,6 +69,15 @@ int main() {
   CHECK(VerifyXex(abc, "").status == XexCheck::BadExpected);
   CHECK(VerifyXex(abc, std::string(64, 'g')).status == XexCheck::BadExpected);
 
+  // Several supported discs: a comma-separated list matches any of its hashes, in either place;
+  // none matching is a mismatch with the actual hash; one malformed entry spoils the list.
+  CHECK(VerifyXex(abc, std::string(kEmpty) + "," + kAbc).status == XexCheck::Match);
+  CHECK(VerifyXex(abc, std::string(kAbc) + ", " + kEmpty).status == XexCheck::Match);
+  auto none = VerifyXex(abc, std::string(kEmpty) + "," + kMillionA);
+  CHECK(none.status == XexCheck::Mismatch);
+  CHECK(none.actual_sha256 == std::string(kAbc));
+  CHECK(VerifyXex(abc, std::string(kAbc) + ",xyz").status == XexCheck::BadExpected);
+  CHECK(VerifyXex(abc, std::string(kAbc) + ",").status == XexCheck::BadExpected);
 
   // Wide-only characters (not in the ANSI code page): must not throw and must survive the round trip.
   {
