@@ -144,6 +144,10 @@ launcher's achievements screen.
   +0x3B0). A midasm hook at the end of the zone blend (`sub_82BD0C30`, 0x82BD389C) scales the
   blended value, a second one after the per-zone blend (`sub_82BD38A8`) keeps the setting in
   zones with their own bloom (`src/hooks/post_effects_hook.cpp`). Checked on the title screen:
-  at 0 the glow around the logo is gone, at 3 it is much stronger. Motion blur: the environment
-  class lost its exposure in development; a debug render object has `_motionBlurState` (+96),
-  not yet used (#3).
+  at 0 the glow around the logo is gone, at 3 it is much stronger.
+- **Motion blur (F4 > Grafik > Bewegungsunschärfe), as in Swap Force, off by default:** the
+  environment class lost its exposure in development, so the strength comes from the motion blur
+  material's `ig_motion_blur_exposure_params` (+96, 0.125 / -0.125 as loaded). A midasm hook at
+  the start of its parameter setter (`sub_8360C7E8`, 0x8360C7E8) writes the game's value times
+  the setting. Checked on the tunnel ride with the throttle held: at 2 and 4 the gear bits are
+  visibly streaked, at 0 the picture is a little sharper than at the game's 1 (#3).

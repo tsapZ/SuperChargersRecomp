@@ -129,6 +129,16 @@ SettingsPage GraphicsPage() {
         {"0.5", "Weak", "Schwach"},
         {"1", "As in the game", "Wie im Spiel"},
         {"1.5", "Strong", "Stark"}}});
+  page.settings.push_back(
+      {"motion_blur_strength", "Motion blur", "Bewegungsunsch\xC3\xA4rfe",
+       "Smears fast movement and the whole picture when the camera turns quickly. Motion blur "
+       "makes 30 FPS look smoother; at higher frame rates it mostly blurs, so it is off by "
+       "default. Costs nothing.",
+       "Verwischt schnelle Bewegungen und das ganze Bild bei schnellen Kameradrehungen. "
+       "Bewegungsunsch\xC3\xA4rfe l\xC3\xA4sst 30 FPS fl\xC3\xBCssiger wirken; bei h\xC3\xB6heren "
+       "Bildraten verwischt sie vor allem, deshalb ist sie standardm\xC3\xA4\xC3\x9Fig aus. "
+       "Kostet nichts.",
+       {{"0", "Off", "Aus"}, {"0.5", "Half", "Halb"}, {"1", "As in the game", "Wie im Spiel"}}});
   Setting fullscreen{"fullscreen", "Fullscreen", "Vollbild",
                      "Starts the game in fullscreen or in a window.",
                      "Startet das Spiel im Vollbild oder im Fenster."};

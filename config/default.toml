@@ -129,6 +129,19 @@ address = 0x82BD439C
 name = "BloomStrengthZoneHook"
 registers = ["r3", "r4"]
 
+# 0x8360C7E8 is the start of sub_8360C7E8, which hands CMotionBlurMaterial's parameters to the shader
+# each time the material is bound: ig_motion_blur_exposure_params from +96 (0.125, -0.125 as the
+# material file has it), the tile parameters from +112, ig_motion_blur_radius_params from +128.
+# Found from the parameter names (0x82288D4C..0x82288D88): sub_836148F0 looks their handles up once
+# (globals 0x8379DBC4 and others), and this is the only function setting them per material.
+# src/hooks/post_effects_hook.cpp writes the game's exposure times motion_blur_strength into +96 /
+# +100 (remembering the game's value, so nothing compounds); only these two floats change, before
+# the function reads them.
+[[midasm_hook]]
+address = 0x8360C7E8
+name = "MotionBlurStrengthHook"
+registers = ["r3"]
+
 [functions]
 # 0x8252E1F8 is called through a pointer (the first boot ended with "Call to invalid or
 # unregistered function at guest address 0x8252E1F8" 3 s in); the analyzer had it inside the
