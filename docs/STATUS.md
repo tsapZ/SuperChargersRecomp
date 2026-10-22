@@ -130,3 +130,10 @@ Updated at the end of every session. Only record what a build actually did.
 - **Upgrades in the details view** (src/game/toy_upgrades.cpp; shared readers in src/game/game_data.cpp): a character's <Name>_CharacterData.igz (CSkillsUpgradeComponentData), its texts from <Name>_CharacterData_es.lng, the pictures through <Name>_AbilityUpgrades.pak's materials; read the first time the menu asks for a character. Checked on the Chop Chop copy: the whole tree with "Einfache Verbesserungen", "Vampirkrieger", "Gespenstischer Verteidiger", "Seelenstein-Verbesserung", the prices and the descriptions with X/Y/B.
 - **Portal library** (cbc71c6, 0eb2564): German card subtitles in the singular ("Fahrzeug" instead of "Vehicles"); a plain hat symbol where a game has no hat picture.
 - **New issues:** #3 bloom and motion blur options, #4 the game's controller picture (it is on the disc: Controller_SchemeXenon.pak, 1024x724).
+
+## 2026-10-22: later the same night
+
+- The settings example and the installer's template set skip_intro twice (an invalid file); fixed, and the example says 60 FPS.
+- **Settings file read even with a repeated key** (SDK fork 96273bb): a key set twice in a table makes the whole TOML file invalid, and the game then ignored every setting in it without a visible error (the error went to a log that didn't exist yet). The SDK now reads such a file with the repeats left out and logs which key was repeated.
+- **`--settings_schema=<file>`** (skylanders-portal 25dec20): the game writes its F4 menu's pages with their values and quits before a window opens; the Core of Light launcher shows them as the game's settings and writes into this game's settings file.
+- **Figure pictures for the launcher** (skylanders-portal e87feb3): while the game runs, every figure picture it reads from the disc goes into `Documents\Skylanders\Pictures\<game>` once, for the launcher's figure library.
