@@ -153,6 +153,9 @@ class SuperchargersrecompApp : public rex::ReXApp {
     // One figure folder for every game (Documents\Skylanders\Figures), like the real figures next
     // to the portal; the first start copies this game's old per-game folder into it.
     skylanders::InstallPortal(skylanders::SharedFiguresDir(user_data_root()));
+    // The figure pictures this game reads from the disc, also as files for the Core of Light
+    // launcher's figure library (Documents\Skylanders\Pictures\SuperChargers).
+    skylanders::StartFigurePictureCache(skylanders::SharedPicturesDir(user_data_root(), "SuperChargers"));
     // A real crash logs where in the game it happened (guest call chain and registers).
     superchargersrecomp::InstallCrashReport(runtime()->memory());
     // Pictures for the portal menu from the game's own files: the collection icons of every
