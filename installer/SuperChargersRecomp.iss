@@ -1,5 +1,5 @@
 #define MyAppName "SuperChargers Recompiled"
-#define MyAppVersion "0.1.0-alpha.2"
+#define MyAppVersion "0.1.0-beta.1"
 #define MyAppExeName "superchargersrecompiled.exe"
 
 [Setup]
@@ -238,9 +238,8 @@ function LanguageTomlValue: AnsiString;
 begin
   case LanguageCombo.ItemIndex of
     1: Result := 'german';
-    2: Result := 'french';
-    3: Result := 'spanish';
-    4: Result := 'italian';
+    2: Result := 'spanish';
+    3: Result := 'italian';
   else
     Result := 'english';
   end;
@@ -339,6 +338,49 @@ begin
     Result := HasValidExistingRom and FileExists(ExpandConstant('{app}') + '\superchargersrecomp.toml');
 end;
 
+// Values from the command line for the two pages, so an install can run unattended
+// (/VERYSILENT /SUPPRESSMSGBOXES, e.g. from the launcher or a test) or start with them filled in:
+// /ROM=<the .iso or the extracted disc folder>, /LANGUAGE=english|german|... (as the settings
+// file names them), /PORTAL=software|usb|none, /RESOLUTION=<width>x<height>, /SCALE=1-8. A value
+// that isn't given, or that the page doesn't offer, leaves the page's default.
+procedure ApplyCommandLine;
+var
+  Value: String;
+  Previous, I: Integer;
+begin
+  Value := ExpandConstant('{param:ROM|}');
+  if Value <> '' then begin
+    RomPathEdit.Text := Value;
+    RomIsFolderRadio.Checked := DirExists(Value);
+    RomIsIsoRadio.Checked := not DirExists(Value);
+  end;
+  Value := Lowercase(ExpandConstant('{param:LANGUAGE|}'));
+  if Value <> '' then begin
+    Previous := LanguageCombo.ItemIndex;
+    for I := LanguageCombo.Items.Count - 1 downto 0 do begin
+      LanguageCombo.ItemIndex := I;
+      if LanguageTomlValue = Value then Break;
+      LanguageCombo.ItemIndex := Previous;
+    end;
+  end;
+  Value := Lowercase(ExpandConstant('{param:PORTAL|}'));
+  if Value <> '' then begin
+    Previous := PortalModeCombo.ItemIndex;
+    for I := PortalModeCombo.Items.Count - 1 downto 0 do begin
+      PortalModeCombo.ItemIndex := I;
+      if PortalModeTomlValue = Value then Break;
+      PortalModeCombo.ItemIndex := Previous;
+    end;
+  end;
+  Value := ExpandConstant('{param:RESOLUTION|}');
+  if Value <> '' then begin
+    if ResolutionCombo.Items.IndexOf(Value) < 0 then ResolutionCombo.Items.Add(Value);
+    ResolutionCombo.ItemIndex := ResolutionCombo.Items.IndexOf(Value);
+  end;
+  Value := ExpandConstant('{param:SCALE|}');
+  if Value <> '' then ResolutionScaleEdit.Text := Value;
+end;
+
 procedure InitializeWizard;
 begin
   RomPage := CreateCustomPage(wpSelectDir, 'Game Files',
@@ -393,22 +435,20 @@ begin
   LanguageLabel.Caption := 'Game language:';
   LanguageLabel.Top := 0;
 
-  // The five languages of the other ports (this disc's are still to be checked). Preselect the
-  // Windows display language.
+  // The languages of the two European discs: English and German on the En/De one, Spanish and
+  // Italian on the Es/It one (docs/game/discs.md). Preselect the Windows display language.
   LanguageCombo := TNewComboBox.Create(SettingsPage);
   LanguageCombo.Parent := SettingsPage.Surface;
   LanguageCombo.Style := csDropDownList;
   LanguageCombo.Items.Add('English');
   LanguageCombo.Items.Add('Deutsch (German)');
-  LanguageCombo.Items.Add('Francais (French)');
   LanguageCombo.Items.Add('Espanol (Spanish)');
   LanguageCombo.Items.Add('Italiano (Italian)');
   // Preselects the Windows display language (primary language id).
   case GetUILanguage and $3FF of
     $07: LanguageCombo.ItemIndex := 1;
-    $0C: LanguageCombo.ItemIndex := 2;
-    $0A: LanguageCombo.ItemIndex := 3;
-    $10: LanguageCombo.ItemIndex := 4;
+    $0A: LanguageCombo.ItemIndex := 2;
+    $10: LanguageCombo.ItemIndex := 3;
   else
     LanguageCombo.ItemIndex := 0;
   end;
@@ -447,12 +487,12 @@ begin
 
   ResolutionScaleLabel := TNewStaticText.Create(SettingsPage);
   ResolutionScaleLabel.Parent := SettingsPage.Surface;
-  ResolutionScaleLabel.Caption := 'Supersample scale (1-8, 1 = off):';
+  ResolutionScaleLabel.Caption := 'Internal resolution, 1-8 (2 recommended, 1 = as on the console):';
   ResolutionScaleLabel.Top := ResolutionCombo.Top + ResolutionCombo.Height + 16;
 
   ResolutionScaleEdit := TNewEdit.Create(SettingsPage);
   ResolutionScaleEdit.Parent := SettingsPage.Surface;
-  ResolutionScaleEdit.Text := '1';
+  ResolutionScaleEdit.Text := '2';
   ResolutionScaleEdit.Top := ResolutionScaleLabel.Top + ResolutionScaleLabel.Height + 4;
   ResolutionScaleEdit.Width := 60;
 
@@ -466,6 +506,7 @@ begin
   ControllerLabel.Caption := 'Controllers are detected automatically (the first one is player 1). The game runs at 60 FPS. ' +
     'The portal menu opens by itself when the game asks for a Skylander, or with the Guide button, ' +
     'Back+Start or holding Back (F6 on the keyboard).';
+  ApplyCommandLine;
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
