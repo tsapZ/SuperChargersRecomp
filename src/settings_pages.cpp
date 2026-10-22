@@ -119,6 +119,16 @@ SettingsPage GraphicsPage() {
        "Empfohlen: aus.",
        {{"none", "Off", "Aus"}, {"fxaa", "FXAA", "FXAA"}, {"fxaa_extreme", "FXAA strong",
                                                          "FXAA stark"}}});
+  page.settings.push_back(
+      {"bloom_strength", "Glow (bloom)", "Leuchten (Bloom)",
+       "The soft glow the game puts around bright areas and lights. Off: a clearer, slightly "
+       "darker picture; strong: more glow. Costs nothing.",
+       "Der weiche Schein, den das Spiel um helle Stellen und Lichter legt. Aus: ein klareres, "
+       "etwas dunkleres Bild; stark: mehr Schein. Kostet nichts.",
+       {{"0", "Off", "Aus"},
+        {"0.5", "Weak", "Schwach"},
+        {"1", "As in the game", "Wie im Spiel"},
+        {"1.5", "Strong", "Stark"}}});
   Setting fullscreen{"fullscreen", "Fullscreen", "Vollbild",
                      "Starts the game in fullscreen or in a window.",
                      "Startet das Spiel im Vollbild oder im Fenster."};

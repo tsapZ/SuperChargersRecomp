@@ -104,6 +104,31 @@ address = 0x83610558
 name = "FxaaFrameSizeHook"
 registers = ["f1", "f2"]
 
+# 0x82BD389C is the last instruction of sub_82BD0C30 before its exit (loc_82BD38A0, which the
+# early exit without blending jumps to as well). sub_82BD0C30 blends the level's environment
+# settings (the reflection fields _blendAll ... _waterSimulationFade, names at 0x820D3D50, their
+# offsets at 0x820D4420) from the zone objects into the one at +2480 of r31, every field computed
+# afresh from the sources (the first lerp reads only them). _bloomScale is at +0x3B0
+# (_bloomLuminanceCutoff +0x3AC). Found from those field tables and the loads of +0x3B0 in the
+# generated code. src/hooks/post_effects_hook.cpp scales the blended _bloomScale by
+# bloom_strength; it changes only that field of the result, after the function wrote it, and does
+# nothing at 1.
+[[midasm_hook]]
+address = 0x82BD389C
+name = "BloomStrengthHook"
+registers = ["r31"]
+
+# 0x82BD439C is where sub_82BD38A8's two paths join after the per-zone blend of _bloomScale
+# (+0x3B0: the result at +2480 of r3 moved towards the zone r4's value by the weight at +2520,
+# when the zone sets _blendAll (+111) or the field's state (+53)). Found next to the hook
+# above: sub_82BD38A8 is the game's other blend of the environment fields. post_effects_hook.cpp adds
+# the zone's share of the bloom_strength scale, so a zone with its own bloom keeps the setting;
+# it reads r3 / r4 and writes only that field, and does nothing at 1.
+[[midasm_hook]]
+address = 0x82BD439C
+name = "BloomStrengthZoneHook"
+registers = ["r3", "r4"]
+
 [functions]
 # 0x8252E1F8 is called through a pointer (the first boot ended with "Call to invalid or
 # unregistered function at guest address 0x8252E1F8" 3 s in); the analyzer had it inside the
