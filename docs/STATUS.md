@@ -139,3 +139,11 @@ Updated at the end of every session. Only record what a build actually did.
 - **Figure pictures for the launcher** (skylanders-portal e87feb3): while the game runs, every figure picture it reads from the disc goes into `Documents\Skylanders\Pictures\<game>` once, for the launcher's figure library; later the same night (skylanders-portal 7f6a34a) also the hats it knows (hats.txt, their pictures) and the upgrade trees of the figures in the figure folder; and
 (skylanders-portal ca65339) the game's achievement list with the title's own pictures, for the
 launcher's achievements screen.
+- **Bloom strength (F4 > Grafik > Leuchten (Bloom)), as in Swap Force:** SuperChargers keeps
+  its bloom in the level's environment settings (some 200 reflection fields; `_bloomScale` at
+  +0x3B0). A midasm hook at the end of the zone blend (`sub_82BD0C30`, 0x82BD389C) scales the
+  blended value, a second one after the per-zone blend (`sub_82BD38A8`) keeps the setting in
+  zones with their own bloom (`src/hooks/post_effects_hook.cpp`). Checked on the title screen:
+  at 0 the glow around the logo is gone, at 3 it is much stronger. Motion blur: the environment
+  class lost its exposure in development; a debug render object has `_motionBlurState` (+96),
+  not yet used (#3).
