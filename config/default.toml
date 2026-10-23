@@ -171,6 +171,27 @@ address = 0x82A136D8
 name = "FigureIntroEndHook"
 registers = ["r3", "r30"]
 
+# 0x82F949B8 is CPlayerJumpComponent's per-frame "stuck while falling" check, as Swap Force's
+# sub_82A4A828: a falling player who moved less than CPlayerSystemData._stuckFallingDistanceThreshold
+# (+0x54) times the component's +0x74 since the last frame runs the stuck timer (+0x98), and after
+# _stuckFallingTime (+0x58) is put back (sub_82F91540 with 5). Found from the reflection field
+# names and offset tables (0x82089008 / 0x820890B8, 0x820889B0 / 0x82088B10); the one function
+# reading both fields. The threshold is per frame, i.e. tuned for 30 FPS.
+# src/hooks/stuck_falling_hook.cpp scales the threshold in f12 by 30 x dt (at most 1) at
+# 0x82F94A40 (fmuls f11,f13,f12 multiplies it next; nothing reads f12 after it before it is loaded
+# anew); dt is read from r26 + 0x14, the update context the only caller sub_82F96310 keeps in r26
+# (its third argument; the function doesn't touch r26); f0, f13, r30, r31 are only read, for the
+# log. 0x82F94A78 logs the put-back (f1 = the timer's time, f31 = the limit; only reads).
+[[midasm_hook]]
+address = 0x82F94A40
+name = "StuckFallingThresholdHook"
+registers = ["f0", "f12", "f13", "r26", "r30", "r31"]
+
+[[midasm_hook]]
+address = 0x82F94A78
+name = "StuckFallingRespawnHook"
+registers = ["f1", "f31"]
+
 [functions]
 # 0x8252E1F8 is called through a pointer (the first boot ended with "Call to invalid or
 # unregistered function at guest address 0x8252E1F8" 3 s in); the analyzer had it inside the
