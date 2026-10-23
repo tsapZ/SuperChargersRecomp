@@ -56,7 +56,7 @@ the figures on the emulated portal, A marks one to take off, Continue takes them
 - **Graphics:** preset (Performance: scale 1 + FSR; Quality: scale 2 + CAS; Best: scale 3 + CAS),
   internal resolution (`resolution_scale`), the native 3D picture (`scene_size`, experimental),
   sharpening (`present_effect`) and its strength (`present_cas_additional_sharpness`), smooth
-  gradients (`present_dither`, on), texture filtering (`anisotropic_override`), the game's own
+  gradients (`present_dither`, on), texture filtering (`anisotropic_override`), HD textures on or off (`hd_textures`, with a pack installed), the game's own
   edge smoothing kept sharp (`fxaa_follow_resolution_scale`), extra edge smoothing
   (`swap_post_effect`), glow (`bloom_strength`), motion blur (`motion_blur_strength`),
   fullscreen, window size.

@@ -7,6 +7,7 @@
 
 #include "portal_rex/achievements_ui.h"
 #include "portal_rex/player_menu.h"
+#include "portal_rex/settings_schema.h"
 
 namespace superchargersrecomp {
 namespace {
@@ -120,6 +121,7 @@ SettingsPage GraphicsPage() {
        "H\xC3\xA4lt B\xC3\xB6" "den und W\xC3\xA4nde scharf, wenn man flach darauf schaut; ohne "
        "Filter verschwimmen sie in der Ferne. Empfohlen ist 16x: Das kostet etwa 1 % Bildrate.",
        {{"0", "Off", "Aus"}, {"3", "4x", "4x"}, {"4", "8x", "8x"}, {"5", "16x", "16x"}}});
+  page.settings.push_back(skylanders::HdTexturesSetting());  // the pack's on / off (all six games)
   page.settings.push_back(
       {"fxaa_follow_resolution_scale", "Game's edge smoothing, sharp", "Kantengl\xC3\xA4ttung des "
        "Spiels, scharf",
