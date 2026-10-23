@@ -209,3 +209,13 @@ launcher's achievements screen.
   fields: without the fix a launch at 5000 and one at 8000 ended with the player put back after
   3 s even at the default 60 FPS (normal jumps counted as stuck 0.42 s), at about 130 FPS too; with
   the fix (threshold times 30 x the frame time) at about 110-130 FPS never, normal jumps 0.23-0.29 s.
+
+## 2026-10-24: 0.1.0-beta.7 (a colleague's evening on SteamOS)
+
+- **Ultrawide by itself in fullscreen** (skylanders-portal bd1b318): the ultrawide camera and the
+  presenter take the aspect from `resolution`, so "Fenstergröße: Automatisch" stayed 16:9 on a
+  21:9 screen. `ResolutionFromScreenIfAutomatic`, first thing in OnPreSetup, sets it for the start
+  to the primary screen's mode (nothing written; not for the launcher's schema).
+- **Window sizes** add 2560x1080 and 3440x1440 (21:9), 3840x1600 (24:10) and 5120x1440 (32:9).
+- **"Tastatur spielt als"** is greyed and can't be changed while "Tastatur und Maus" is off
+  (skylanders-portal 10a00cd, `enabled_by`, also in the schema for Core of Light).
