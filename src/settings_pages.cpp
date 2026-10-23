@@ -247,7 +247,8 @@ SettingsPage FrameRatePage() {
 
 SettingsPage GamePage() {
   SettingsPage page{"Game", "Spiel", {}};
-  // The five languages of src/localization.cpp; German and Italian through the region hook.
+  // The languages of src/localization.cpp, set through user_language; unlike Giants this game
+  // needs no region hook (its German title screen, checked 2026-10-23).
   // "auto" follows the Windows display language if it is one of them, else English.
   Setting language{"language", "Language", "Sprache",
                    "Text and voices. Automatic: the language of Windows, if the game has it. The "
