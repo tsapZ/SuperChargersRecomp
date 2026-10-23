@@ -41,10 +41,27 @@
 // (88x88, gold rim, stored upside down like the others), and its name the game's word for it
 // ("Landfahrzeug", "Seefahrzeug", "Himmelsfahrzeug" in systemData's German text). The owner asked
 // for such symbols after Swap Force's SWAP skills (2026-10-21).
+//
+// The German names of the magic items and traps (SetFigureNameProvider): next to a toy data file
+// the game keeps its texts, ToyData/<Name>_ToyData_<language>.lng (game_data.h's ReadText), the
+// toy's "CToyData::_toyName" by its toy object's name and each variant's
+// "CVariantIdentifier::_toyName" by the variant's. Read 2026-10-23 from all 125 of them: the
+// German disc translates only the magic items' and traps' ("Kampfhammer", "Gezeiten-Tiki",
+// "Goldene Drachenfeuer-Kanone"); the Skylanders, vehicles and their variants keep their
+// English names there ("Hot Streak", "Legendary Bash"), which the catalog already has. So only a
+// toy with a German name of its own gets names, from the _de file (the En/De disc) or else the _es
+// one (the German text on the German disc, as toy_upgrades.cpp's). The variant numbers of these
+// files match the catalog's (all 64 traps, the Golden Dragonfire Cannon, the Legendary Hand of
+// Fate).
+// A catalog variant without an entry of its own is the plain toy when the catalog calls it what it
+// calls the toy's lowest variant (the Dragonfire Cannon is 0x1206), and keeps what the catalog adds
+// to that ("Sunscraper Spire (LightCore)" -> "Sonnenkratzer (LightCore)"); the others keep the
+// catalog's more specific name ("Platinum Treasure Chest").
 
 #include "toy_images.h"
 
 #include "controller_picture.h"
+#include "game_data.h"
 #include "hats.h"
 #include "toy_upgrades.h"
 
@@ -66,6 +83,7 @@
 
 #include "game/alchemy/iga_archive.h"
 #include "game/alchemy/igz_file.h"
+#include "portal/figure_catalog.h"
 #include "portal_rex/menu_draw.h"
 #include "portal_rex/portal_menu.h"
 
@@ -81,6 +99,9 @@ constexpr char kToyDataArchive[] = "permanent.pak";
 constexpr char kMaterialArchive[] = "ToyCollectionMaterials.pak";
 constexpr std::string_view kToyDataDir = "/ToyData/";
 constexpr std::string_view kToyDataSuffix = "_ToyData.igz";
+constexpr std::string_view kToyTextSuffixes[] = {"_ToyData_de.lng", "_ToyData_es.lng"};
+constexpr char kToyNameField[] = "CToyData::_toyName";
+constexpr char kVariantNameField[] = "CVariantIdentifier::_toyName";
 constexpr std::string_view kMaterialDir = "/materialInstances/ToyCollection/";
 constexpr std::string_view kTextureDir = "/textures/";
 constexpr std::string_view kCollectionPrefix = "Collection_";
@@ -125,16 +146,15 @@ struct Toy {
   std::unordered_map<uint16_t, std::string> variants;     // catalog variant -> material
   std::string character;                                  // "ChopChop" (its toy data file's name)
   uint32_t terrain = 0;                                   // vehicles: 1 land, 2 sky, 3 sea
+  std::string name_de;                                    // its German name, if translated
+  std::unordered_map<uint16_t, std::string> variant_names_de;  // every variant's, maybe empty
 };
 
 std::mutex g_mutex;
 std::unordered_map<uint16_t, Toy> g_toys;                                    // by toy id
 std::unordered_map<std::string, std::shared_ptr<const FigureImage>> g_icons;  // by material
+std::unordered_map<uint32_t, std::string> g_names_de;  // by id << 16 | catalog variant
 bool g_ready = false;
-
-bool EndsWith(const std::string& s, std::string_view suffix) {
-  return s.size() >= suffix.size() && s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
-}
 
 // The collection material a handle names, or empty.
 std::string CollectionMaterial(const IgzFile& igz, uint32_t handle) {
@@ -156,14 +176,6 @@ uint16_t VariantNumber(const IgzFile& igz, size_t object) {
 // Icons smaller than this are enlarged by kEnlargeFactor when the menu first asks for them.
 constexpr int kEnlargeBelow = 256;
 constexpr int kEnlargeFactor = 2;
-
-void FlipVertically(FigureImage& image) {
-  const size_t row = size_t(image.width) * 4;
-  for (int y = 0; y < image.height / 2; ++y) {
-    std::swap_ranges(image.rgba.begin() + y * row, image.rgba.begin() + (y + 1) * row,
-                     image.rgba.begin() + (image.height - 1 - y) * row);
-  }
-}
 
 double Lanczos3(double x) {
   constexpr double kPi = 3.14159265358979323846;
@@ -242,7 +254,22 @@ std::shared_ptr<FigureImage> ReadPicture(const IgaArchive& archive, size_t index
   return image;
 }
 
+// The German text next to a toy data file (`name` ends with kToyDataSuffix), empty if none.
+GameText ToyText(const IgaArchive& archive, const std::unordered_map<std::string, size_t>& files,
+                 const std::string& name) {
+  const std::string base = name.substr(0, name.size() - kToyDataSuffix.size());
+  for (std::string_view suffix : kToyTextSuffixes) {
+    auto it = files.find(base + std::string(suffix));
+    if (it == files.end()) continue;
+    auto data = archive.Read(it->second);
+    if (auto lng = data ? IgzFile::Parse(std::move(*data)) : std::nullopt) return ReadText(*lng);
+  }
+  return {};
+}
+
 void IndexToyData(const IgaArchive& archive, ToyMap& toys) {
+  std::unordered_map<std::string, size_t> files;
+  for (size_t i = 0; i < archive.size(); ++i) files.emplace(archive.name(i), i);
   for (size_t i = 0; i < archive.size(); ++i) {
     const std::string& name = archive.name(i);
     if (name.find(kToyDataDir) == std::string::npos || !EndsWith(name, kToyDataSuffix)) continue;
@@ -250,18 +277,31 @@ void IndexToyData(const IgaArchive& archive, ToyMap& toys) {
     if (!data) continue;
     auto igz = IgzFile::Parse(std::move(*data));
     if (!igz) continue;
+    const GameText text = ToyText(archive, files, name);
+    const auto object_names = ObjectNames(*igz);
+    auto object_name = [&](size_t object) {
+      auto it = object_names.find(object);
+      return it == object_names.end() ? std::string() : it->second;
+    };
     // The file's variants belong to its toys; a file with two (a Skylander and its Legendary)
     // gives both the same list, and the catalog's numbers pick the right one.
-    std::unordered_map<uint16_t, std::string> variants;
+    std::unordered_map<uint16_t, std::string> variants, variant_names;
     for (const auto& [object, type] : igz->Objects("CVariantIdentifier")) {
+      const uint16_t number = VariantNumber(*igz, object);
+      variant_names.emplace(number, text.Get(object_name(object), kVariantNameField));
       std::string material = CollectionMaterial(*igz, igz->Field(object, kVariantMaterialField));
-      if (!material.empty()) variants.emplace(VariantNumber(*igz, object), std::move(material));
+      if (!material.empty()) variants.emplace(number, std::move(material));
     }
     for (const auto& [object, type] : igz->Objects("ToyData")) {
       const uint32_t id = igz->Field(object, kToyIdField);
       std::string material = CollectionMaterial(*igz, igz->Field(object, kToyMaterialField));
-      if (id > 0xFFFF || material.empty()) continue;
+      std::string name_de = text.Get(object_name(object), kToyNameField);
+      // A toy without a collection icon can still have a name (the UFO Hat).
+      if (id > 0xFFFF || (material.empty() && name_de.empty())) continue;
       Toy& toy = toys[uint16_t(id)];
+      toy.name_de = std::move(name_de);
+      toy.variant_names_de = variant_names;
+      if (material.empty()) continue;
       toy.material = std::move(material);
       const size_t file = name.rfind('/') + 1;
       toy.character = name.substr(file, name.size() - file - kToyDataSuffix.size());
@@ -269,6 +309,28 @@ void IndexToyData(const IgaArchive& archive, ToyMap& toys) {
       for (const auto& [variant, m] : variants) toy.variants.emplace(variant, m);
     }
   }
+}
+
+// The German names by catalog figure (see the top of this file), for the toys that have one.
+std::unordered_map<uint32_t, std::string> GermanNames(const ToyMap& toys) {
+  using skylanders::portal::AllSkylanders;
+  std::unordered_map<uint16_t, const skylanders::portal::SkylanderInfo*> lowest;
+  for (const auto& sky : AllSkylanders()) {
+    auto& low = lowest[sky.id];
+    if (!low || sky.variant < low->variant) low = &sky;
+  }
+  std::unordered_map<uint32_t, std::string> names;
+  for (const auto& sky : AllSkylanders()) {
+    auto toy = toys.find(sky.id);
+    if (toy == toys.end() || toy->second.name_de.empty()) continue;
+    const uint32_t key = uint32_t(sky.id) << 16 | sky.variant;
+    if (auto v = toy->second.variant_names_de.find(sky.variant); v != toy->second.variant_names_de.end()) {
+      if (!v->second.empty()) names.emplace(key, v->second);
+    } else if (sky.name.starts_with(lowest[sky.id]->name)) {
+      names.emplace(key, toy->second.name_de + std::string(sky.name.substr(lowest[sky.id]->name.size())));
+    }
+  }
+  return names;
 }
 
 // The tracker's sharper icons by their path under ToyInventoryIcons ("2015Characters!AirLock").
@@ -394,15 +456,17 @@ void Load(std::filesystem::path rom) {
   }
   size_t variants = 0;
   for (const auto& [id, toy] : toys) variants += toy.variants.size();
-  const size_t toy_count = toys.size(), icon_count = icons.size();
+  auto names_de = GermanNames(toys);
+  const size_t toy_count = toys.size(), icon_count = icons.size(), name_count = names_de.size();
   {
     std::lock_guard<std::mutex> lock(g_mutex);
     g_toys = std::move(toys);
     g_icons = std::move(icons);
+    g_names_de = std::move(names_de);
     g_ready = true;
   }
-  REXLOG_INFO("Toy images: {} toys with {} variants, {} icons and {} symbols, in {} ms", toy_count,
-              variants, icon_count - symbols, symbols,
+  REXLOG_INFO("Toy images: {} toys with {} variants, {} icons and {} symbols, {} German names, in {} ms",
+              toy_count, variants, icon_count - symbols, symbols, name_count,
               std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start).count());
 }
 
@@ -447,6 +511,14 @@ std::shared_ptr<const FigureImage> Lookup(uint16_t id, uint16_t variant) {
   return Icon(toy.material);
 }
 
+std::optional<std::string> GermanName(uint16_t id, uint16_t variant) {
+  if (!skylanders::menu_draw::GermanText()) return std::nullopt;
+  std::lock_guard<std::mutex> lock(g_mutex);
+  auto it = g_names_de.find(uint32_t(id) << 16 | variant);
+  if (!g_ready || it == g_names_de.end()) return std::nullopt;
+  return it->second;
+}
+
 }  // namespace
 
 std::string ToyCharacter(uint16_t id) {
@@ -460,6 +532,7 @@ void InstallToyImages(const std::filesystem::path& rom_dir) {
   skylanders::SetFigureImageProvider(
       [](uint16_t id, uint16_t variant) { return Lookup(id, variant); });
   skylanders::SetFigureTraitProvider([](uint16_t id, uint16_t) { return Terrain(id); });
+  skylanders::SetFigureNameProvider(GermanName);
   skylanders::SetArtImageProvider([](const std::string& key) -> std::shared_ptr<const FigureImage> {
     if (auto hat = HatPicture(key)) return hat;  // "hat:<number>" (hats.cpp)
     if (key.starts_with("upgrade:")) return UpgradeImage(key);  // toy_upgrades.cpp

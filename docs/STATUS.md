@@ -197,3 +197,8 @@ launcher's achievements screen.
   launcher (the settings file is still written); reasons a silent install stops go into its log.
   Silent install from the owner's ISO, start (German title screen), silent uninstall: checked.
 - The language list offers the two European discs' languages only (no French).
+- **German names of the magic items and traps** in the portal menu (it showed the catalog's
+  English ones): from the toys' own text files next to their toy data
+  (ToyData/<Name>_ToyData_de.lng, else _es; "Kampfhammer", "Schicksalshand", "Sonnenkratzer
+  (LightCore)"). The German disc keeps the Skylanders' and vehicles' English names, so those stay.
+  Checked by script in F6 > Magische Objekte (91 names).
