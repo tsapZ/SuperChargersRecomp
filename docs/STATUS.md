@@ -88,7 +88,7 @@ Updated at the end of every session. Only record what a build actually did.
   FPS (the figure's intro 7.34 against 7.45 s, the portal sequence 5.88 against 5.94 s). The magic
   moment watch logs its state changes at info level now (a few lines per figure change), which is
   how the speed was timed.
-- **The menus in the game's own fonts** (src/game/game_fonts.cpp, skylanders-portal b804d9c,
+- **The menus in the game's own fonts** (src/game/game_fonts.cpp, skylanders-portal 465b4c1,
   SwapForceRecomp #54): fonts/ProximaNova-Title.igz (permanent.pak, 133 glyphs, small caps, cells
   146 px) and fonts/ProximaNova-Body.igz (essentialui.pak, 170 glyphs with ä ö ü ß, cells 34 px)
   are igBitmapFont files; their igCharMetrics give each glyph's cell and their atlas pages are
@@ -125,19 +125,19 @@ Updated at the end of every session. Only record what a build actually did.
 
 ## 2026-10-22: session log (night)
 
-- **Vehicles' terrain** (51fa8d1): CVehicleToyData +0x30 (1 land, 2 sky, 3 sea, as the game's three template vehicles say), shown on the card, the preview and the details with the collection screen's symbol and the game's word ("Landfahrzeug", "Seefahrzeug", "Himmelsfahrzeug").
+- **Vehicles' terrain** (efb198f): CVehicleToyData +0x30 (1 land, 2 sky, 3 sea, as the game's three template vehicles say), shown on the card, the preview and the details with the collection screen's symbol and the game's word ("Landfahrzeug", "Seefahrzeug", "Himmelsfahrzeug").
 - **Hats in the details view** (src/game/hats.cpp): permanent.pak's CollectibleTrackers.igz (one CHatCollectibleTracker per hat: its number at +0x84, attributes at +0x80, icon material at +0x0C), the names from CollectibleTrackers_es.lng (the German text on the German disc; the English menu makes a name from the hat's object name), the attribute names from systemData.igz translated by systemData_es.lng's hash table (FNV-1a of the English name), the pictures from CollectibleTrackerIcons.pak. Checked on a copy of a Chop Chop with the flower hat: "Blumenhut", its picture, "+2 Rüstung", "+2 Kritische Trefferwahrscheinlichkeit". Log: "266 hats (266 with a picture), 1847 texts, 28 attribute names".
 - **Upgrades in the details view** (src/game/toy_upgrades.cpp; shared readers in src/game/game_data.cpp): a character's <Name>_CharacterData.igz (CSkillsUpgradeComponentData), its texts from <Name>_CharacterData_es.lng, the pictures through <Name>_AbilityUpgrades.pak's materials; read the first time the menu asks for a character. Checked on the Chop Chop copy: the whole tree with "Einfache Verbesserungen", "Vampirkrieger", "Gespenstischer Verteidiger", "Seelenstein-Verbesserung", the prices and the descriptions with X/Y/B.
-- **Portal library** (cbc71c6, 0eb2564): German card subtitles in the singular ("Fahrzeug" instead of "Vehicles"); a plain hat symbol where a game has no hat picture.
+- **Portal library** (83cc22e, 141d32e): German card subtitles in the singular ("Fahrzeug" instead of "Vehicles"); a plain hat symbol where a game has no hat picture.
 - **New issues:** #3 bloom and motion blur options, #4 the game's controller picture (it is on the disc: Controller_SchemeXenon.pak, 1024x724).
 
 ## 2026-10-22: later the same night
 
 - The settings example and the installer's template set skip_intro twice (an invalid file); fixed, and the example says 60 FPS.
-- **Settings file read even with a repeated key** (SDK fork 96273bb): a key set twice in a table makes the whole TOML file invalid, and the game then ignored every setting in it without a visible error (the error went to a log that didn't exist yet). The SDK now reads such a file with the repeats left out and logs which key was repeated.
-- **`--settings_schema=<file>`** (skylanders-portal 25dec20): the game writes its F4 menu's pages with their values and quits before a window opens; the Core of Light launcher shows them as the game's settings and writes into this game's settings file.
-- **Figure pictures for the launcher** (skylanders-portal e87feb3): while the game runs, every figure picture it reads from the disc goes into `Documents\Skylanders\Pictures\<game>` once, for the launcher's figure library; later the same night (skylanders-portal 7f6a34a) also the hats it knows (hats.txt, their pictures) and the upgrade trees of the figures in the figure folder; and
-(skylanders-portal ca65339) the game's achievement list with the title's own pictures, for the
+- **Settings file read even with a repeated key** (SDK fork 8761248): a key set twice in a table makes the whole TOML file invalid, and the game then ignored every setting in it without a visible error (the error went to a log that didn't exist yet). The SDK now reads such a file with the repeats left out and logs which key was repeated.
+- **`--settings_schema=<file>`** (skylanders-portal 4521ced): the game writes its F4 menu's pages with their values and quits before a window opens; the Core of Light launcher shows them as the game's settings and writes into this game's settings file.
+- **Figure pictures for the launcher** (skylanders-portal e17786b): while the game runs, every figure picture it reads from the disc goes into `Documents\Skylanders\Pictures\<game>` once, for the launcher's figure library; later the same night (skylanders-portal 6c3c6a3) also the hats it knows (hats.txt, their pictures) and the upgrade trees of the figures in the figure folder; and
+(skylanders-portal f571d26) the game's achievement list with the title's own pictures, for the
 launcher's achievements screen.
 - **Bloom strength (F4 > Grafik > Leuchten (Bloom)), as in Swap Force:** SuperChargers keeps
   its bloom in the level's environment settings (some 200 reflection fields; `_bloomScale` at
@@ -176,8 +176,8 @@ launcher's achievements screen.
 
 ## 2026-10-23: session log (night)
 
-- **Title music from the disc** for the Core of Light launcher (skylanders-portal 7bd504a,
-  rexglue-sdk 1e74678): `--export_title_music=<file.wav>` decodes the track the title screen
+- **Title music from the disc** for the Core of Light launcher (skylanders-portal 6e5c284,
+  rexglue-sdk 63e87be): `--export_title_music=<file.wav>` decodes the track the title screen
   streams (found with a run logging the game's file reads) from XMA2 with the SDK's FFmpeg and
   quits before a window opens, in under a second; each normal start leaves `title_music.wav` in
   the game's picture folder once. Checked: INTER_Main_Theme of archives/INTER_Streamed_bank.pak (80.6 s); identical to FFmpeg 8.1's own decode of the
@@ -186,10 +186,10 @@ launcher's achievements screen.
   starten" (both ask, "Nein" first; restart not offered when the launcher started the game; the
   new instance waits for the old one), the player menu is a row on the Portal page, the settings
   menu's buttons have no "Aus" any more (it locked a pad out), "Alle Einstellungen" says it is for
-  keyboard and mouse (skylanders-portal 60e8eeb).
-- **HD texture packs:** rexglue-sdk f02a4b5 dumps the game's BC1-BC3 textures
+  keyboard and mouse (skylanders-portal 5fff7aa).
+- **HD texture packs:** rexglue-sdk 37d3e77 dumps the game's BC1-BC3 textures
   (`texture_dump_dir`) and loads `<hash>.dds` replacements of any size (`texture_replace_dir`);
-  a pack in `Documents\Skylanders\Textures\SuperChargers` is used by itself (skylanders-portal ebb5e85).
+  a pack in `Documents\Skylanders\Textures\SuperChargers` is used by itself (skylanders-portal 94175f0).
   Checked in Swap Force's hub (see SwapForceRecomp docs/texture-packs.md, #62).
 - **F4 > Grafik:** "Schärfe-Stärke" (CAS's additional sharpness) and "Farbverläufe glätten
   (Dithering)", dithering on by default.
