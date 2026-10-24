@@ -198,21 +198,17 @@ SettingsPage FrameRatePage() {
   // 144.2 with present_interval 1. Game speed: the magic moment's states around a figure's arrival
   // last as long at 144 as at 30 FPS (the intro 7.34 against 7.45 s, the portal sequence 5.88
   // against 5.94 s). docs/STATUS.md.
+  // One frame rate row as in the other games (the owner, 2026-10-24: the separate "60 FPS und mehr"
+  // switch was confusing). present_interval stays 1 (the app header), so the limit alone sets the
+  // rate; 30 is the console's rate.
   page.settings.push_back(
-      {"present_interval", "60 FPS and more", "60 FPS und mehr",
-       "The game was made for 30 FPS. On: as many frames as the limit below allows; the game "
-       "keeps its normal speed. Off: 30 FPS as on the console.",
-       "Das Spiel ist f\xC3\xBCr 30 FPS gemacht. An: so viele Bilder, wie die Grenze darunter "
-       "erlaubt; das Spiel l\xC3\xA4uft dabei normal schnell. Aus: 30 FPS wie auf der Konsole.",
-       {{"2", "Off (30 FPS)", "Aus (30 FPS)"}, {"1", "On", "An"}}});
-  page.settings.push_back(
-      {"frame_rate_limit", "Frame rate limit", "FPS-Grenze",
-       "The most frames per second with 60 FPS and more on. Best set to your screen's refresh "
-       "rate. If your PC can't reach it, the game simply runs as fast as it can.",
-       "H\xC3\xB6" "chstens so viele Bilder pro Sekunde, wenn 60 FPS und mehr an ist. Am besten "
-       "die Bildwiederholrate deines Bildschirms. Schafft dein PC das nicht, l\xC3\xA4uft das "
-       "Spiel einfach so schnell, wie er kann.",
-       {{"30", "30", "30"},
+      {"frame_rate_limit", "Frame rate", "Bildrate",
+       "The game was made for 30 FPS and keeps its speed with more. Best set to your screen's "
+       "refresh rate; if your PC can't reach it, the game runs as fast as it can.",
+       "Das Spiel ist f\xC3\xBCr 30 FPS gemacht und l\xC3\xA4uft mit mehr normal schnell. Am "
+       "besten die Bildwiederholrate deines Bildschirms; schafft dein PC das nicht, l\xC3\xA4uft "
+       "das Spiel so schnell, wie er kann.",
+       {{"30", "30 (as on the console)", "30 (wie auf der Konsole)"},
         {"60", "60", "60"},
         {"120", "120", "120"},
         {"144", "144", "144"},
