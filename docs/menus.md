@@ -25,6 +25,9 @@ settings menu's own buttons have no "off" choice, so a controller can always get
 
 ## Portal menu
 
+Each player's vehicle goes on next to their Skylander and doesn't lift it (#6). The old
+sidekicks are Minis here and go on as a player's Skylander. Bowser, Donkey Kong and their vehicles aren't listed: the 360 disc doesn't have them (`portal_menu_nintendo = true` lists them anyway).
+
 Opens by itself when the game asks a player for a Skylander (see [portal.md](portal.md)), or with
 the buttons above. It lists the figures of Spyro's Adventure, Giants, Swap Force, Trap Team and SuperChargers by game and element, with this game's own
 pictures, read at run time from the owner's disc:
