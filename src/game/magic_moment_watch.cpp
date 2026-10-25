@@ -103,6 +103,8 @@ std::optional<Prompt> CurrentPrompt(rex::memory::Memory* memory) {
     g_last_state = *state;
     // A menu opened with the button comes up during the zoom-out, just before the prompt.
     if (*state == kStateZoomOut && player && *player < 4) skylanders::PortalScreenComing(*player);
+    // A Skylander out of health: marked in the menu until it has rested (a new level).
+    if (*state == kStateDead && player && *player < 4) skylanders::PlayerSkylanderTired(*player);
   }
   const auto reason = ReadGuest32(memory, *instance + kReasonOffset);
   if (!state || !player || !reason) return std::nullopt;

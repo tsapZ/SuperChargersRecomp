@@ -58,6 +58,12 @@ SPANISH = "_es.lng"
 SPANISH_VOICES = "_es.pak"
 BACKUP_DIR = "german_text_backup"
 MOVIES_DIR = "movies"  # in BACKUP_DIR: this disc's movies that --movies replaced
+# The story movies' spoken tracks are Bink track ids 5 and 6, in the disc's language order (Spanish,
+# Italian here; English, German on the European English / German disc). This disc's game plays 5
+# whatever the language (BinkSetSoundTrack with {0, 1, 2, 3, 5}, logged 2026-10-25 with the German
+# setting), so the other disc's movies spoke English. The wanted language's track goes into 5 too.
+SPOKEN_PLAYED = 5
+SPOKEN_TRACK = {"en": 5, "de": 6}  # on the English / German disc
 PLATFORM_PS3 = 6
 PLATFORM_XENON = 5
 XENON_STRINGS = "xenonplatformstrings_es.lng"
@@ -464,6 +470,75 @@ def platform_strings(archives_dir, ps3_path, backup_dir):
     return missing
 
 
+def bink_layout(data):
+    """A Bink 2 file's audio track ids, header length and frame offsets."""
+    frames, = struct.unpack_from("<I", data, 8)
+    n, = struct.unpack_from("<I", data, 40)
+    at = 44 + (4 if data[:3] == b"KB2" and data[3:4] >= b"g" else 0) + 8 * n
+    ids = list(struct.unpack_from("<%dI" % n, data, at))
+    at += 4 * n
+    offsets = [x & ~1 for x in struct.unpack_from("<%dI" % (frames + 1), data, at)]
+    return ids, at, offsets
+
+
+def spoken_into_played(data, track):
+    """The movie with spoken track `track`'s packets in the played one (SPOKEN_PLAYED) as well;
+    None when it has no such tracks or both are the same already."""
+    ids, index, offsets = bink_layout(data)
+    if track == SPOKEN_PLAYED or track not in ids or SPOKEN_PLAYED not in ids:
+        return None
+    frames = len(offsets) - 1
+    src, dst = ids.index(track), ids.index(SPOKEN_PLAYED)
+    out, largest, changed = [], 0, False
+    for f in range(frames):
+        at, packets = offsets[f], []
+        for _ in ids:
+            size, = struct.unpack_from("<I", data, at)
+            packets.append(data[at + 4:at + 4 + size])
+            at += 4 + size
+        changed = changed or packets[dst] != packets[src]
+        packets[dst] = packets[src]
+        frame = b"".join(struct.pack("<I", len(p)) + p for p in packets) + data[at:offsets[f + 1]]
+        largest = max(largest, len(frame))
+        out.append(frame)
+    if not changed:
+        return None
+    keys = struct.unpack_from("<%dI" % (frames + 1), data, index)
+    header = bytearray(data[:index])
+    table, at = [], offsets[0]
+    for f in range(frames + 1):
+        table.append(at | (keys[f] & 1))
+        if f < frames:
+            at += len(out[f])
+    body = b"".join(out)
+    struct.pack_into("<I", header, 4, offsets[0] + len(body) - 8)
+    struct.pack_into("<I", header, 12, largest)
+    return bytes(header) + struct.pack("<%dI" % (frames + 1), *table) + data[index + 4 * (frames + 1):offsets[0]] + body
+
+
+def spoken_language(archives_dir, backup_dir):
+    """The movies taken from the other disc speak the wanted language in the track this disc's
+    game plays; a second run changes nothing."""
+    store = os.path.join(backup_dir, MOVIES_DIR)
+    if not os.path.isdir(store):
+        return 0
+    track = SPOKEN_TRACK[SOURCE["language"]]
+    done = 0
+    for name in sorted(os.listdir(store)):
+        target = os.path.join(archives_dir, name)
+        if not os.path.isfile(target):
+            continue
+        with open(target, "rb") as f:
+            new = spoken_into_played(f.read(), track)
+        if new is None:
+            continue
+        with open(target + ".tmp", "wb") as f:
+            f.write(new)
+        os.replace(target + ".tmp", target)
+        done += 1
+    return done
+
+
 def movies(archives_dir, source_dir, backup_dir):
     """The other disc's movies where they differ from this disc's: the Bink movies carry their
     spoken track in the disc's languages (the same track numbers on both discs; the story movies
@@ -645,6 +720,8 @@ def main():
         if args.movies and not from_ps3():
             changed, same = movies(archives_dir, source_dir, backup_dir)
             print("Movies: %d taken from the other disc, %d the same on both." % (changed, same))
+            spoken = spoken_language(archives_dir, backup_dir)
+            print("Movies: %d speak %s in the track the game plays." % (spoken, language))
         print("Undo everything with --restore.")
     finally:
         if temp:
