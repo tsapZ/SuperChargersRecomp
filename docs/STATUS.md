@@ -260,3 +260,18 @@ launcher's achievements screen.
   follows it again once the keys or the pad move it.
 - **A chosen 4x texture filter stays 4x** (Core of Light #21, a colleague's report and fix;
   skylanders-portal 23be5f2): 4x is the SDK's own default, so it counted as unset and became 16x.
+
+## 2026-10-25 (night): portal requests
+
+- **The vehicle request opens the menu** (#8): CMagicMoment Idle with no player
+  (_currentPlayerId -1, reason 13 VehicleRequired) where a Skylander prompt names the player. The
+  menu opens on a "Fahrzeuge" tab with a row per terrain ("Himmelsfahrzeug", "Landfahrzeug",
+  "Seefahrzeug", the game's names) without lifting the Skylander, and the vehicle goes on at once;
+  it waited for the game to stop being busy before, 10 s. Checked on a copy of the owner's save:
+  the request at load, Buzz Wing picked, the game on to its vehicle intro 0.5 s later.
+- **A Skylander's death opens the menu too**: the Dead state (14) with the player's id.
+- **Vehicles with versions ask which one** (#10): Soda Skimmer / Nitro Soda Skimmer.
+- **Hats** (#9): the SuperChargers hat slot is the number minus 256 (Enigma's 13 = 269 "Gold
+  Rusher-Zahnradkappe", not 268 "Shark Tank-Zylinder"); vehicles show no hat.
+- Test runs use a short junction to the scratch data: with the full path the options save passed
+  Windows' 260 characters and the game called it damaged (not a problem of the game).

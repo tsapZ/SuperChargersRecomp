@@ -31,6 +31,7 @@ Usage (from the repository folder, with the 360 disc extracted to rom/ as for pl
   python tools/german_text.py --xbox360 "D:\\path\\to\\the En-De disc.iso" --voices
   python tools/german_text.py --xbox360 "D:\\path\\to\\the extracted En-De disc"
   python tools/german_text.py --ps3 "D:\\path\\to\\the PS3 disc.iso" [--voices]
+  python tools/german_text.py --xbox360 ... --movies      (the story movies too, ~5 GB)
   python tools/german_text.py ... --language en           (English instead of German)
   python tools/german_text.py --restore
 An Xbox 360 .iso is unpacked whole with extract-xiso (installer/extract-xiso.exe) into a temporary
@@ -40,6 +41,7 @@ Only the Python standard library is used.
 """
 
 import argparse
+import filecmp
 import json
 import lzma
 import os
@@ -55,6 +57,7 @@ STORED = 0xFFFFFFFF
 SPANISH = "_es.lng"
 SPANISH_VOICES = "_es.pak"
 BACKUP_DIR = "german_text_backup"
+MOVIES_DIR = "movies"  # in BACKUP_DIR: this disc's movies that --movies replaced
 PLATFORM_PS3 = 6
 PLATFORM_XENON = 5
 XENON_STRINGS = "xenonplatformstrings_es.lng"
@@ -461,11 +464,43 @@ def platform_strings(archives_dir, ps3_path, backup_dir):
     return missing
 
 
+def movies(archives_dir, source_dir, backup_dir):
+    """The other disc's movies where they differ from this disc's: the Bink movies carry their
+    spoken track in the disc's languages (the same track numbers on both discs; the story movies
+    differ, the logo and vehicle movies are the same file). This disc's file goes to
+    <backup>/movies first, so --restore can put it back."""
+    store = os.path.join(backup_dir, MOVIES_DIR)
+    os.makedirs(store, exist_ok=True)
+    changed = same = 0
+    for name in sorted(os.listdir(archives_dir)):
+        if not name.lower().endswith(".bk2"):
+            continue
+        source = os.path.join(source_dir, name)
+        target = os.path.join(archives_dir, name)
+        if not os.path.isfile(source) or os.path.exists(os.path.join(store, name)):
+            continue
+        if filecmp.cmp(source, target, shallow=False):
+            same += 1
+            continue
+        os.replace(target, os.path.join(store, name))
+        shutil.copyfile(source, target)
+        changed += 1
+    if not os.listdir(store):
+        os.rmdir(store)
+    return changed, same
+
+
 def restore(archives_dir):
     backup_dir = os.path.join(archives_dir, BACKUP_DIR)
     if not os.path.isdir(backup_dir):
         print("Nothing to restore.")
         return
+    store = os.path.join(backup_dir, MOVIES_DIR)
+    if os.path.isdir(store):
+        for name in os.listdir(store):
+            os.replace(os.path.join(store, name), os.path.join(archives_dir, name))
+        os.rmdir(store)
+        print("The disc's own movies are back.")
     steps = {}
     for record_name in sorted(os.listdir(backup_dir)):
         if not record_name.endswith(".json"):
@@ -517,6 +552,9 @@ def main():
     parser.add_argument("--voices", action="store_true",
                         help="also the voices (from an Xbox 360 disc they are the game's own; from the PS3 "
                              "disc experimental: MP3 banks, which this game's FMOD has a decoder for)")
+    parser.add_argument("--movies", action="store_true",
+                        help="also the movies, from another Xbox 360 disc: their spoken track is in that "
+                             "disc's languages (else the story movies stay Spanish / Italian)")
     args = parser.parse_args()
     archives_dir = os.path.join(args.rom, "archives")
     if not os.path.isdir(archives_dir):
@@ -604,6 +642,9 @@ def main():
                 print("  %d / %d voice archives, %d voices %s" % (k, len(voices), total, language))
         if voices:
             print("Done: %d voices in %d archives are %s now." % (total, done, language))
+        if args.movies and not from_ps3():
+            changed, same = movies(archives_dir, source_dir, backup_dir)
+            print("Movies: %d taken from the other disc, %d the same on both." % (changed, same))
         print("Undo everything with --restore.")
     finally:
         if temp:

@@ -54,6 +54,8 @@ constexpr uint32_t kErrorTypeOffset = 0x1F8;
 constexpr uint32_t kPlayerOffset = 0x1FC;
 constexpr uint32_t kStateZoomOut = 3;
 constexpr uint32_t kStateIdle = 5;
+// A player's Skylander died: the game waits for another one in this state (the state list above).
+constexpr uint32_t kStateDead = 14;
 constexpr uint32_t kStateError = 17;
 constexpr uint32_t kLastState = 21;
 // The portal check's reasons (Swap Force's EMagicMomentReason values, which the portal menu
@@ -78,6 +80,7 @@ uint32_t g_last_state = 0;            // watcher thread only; for the debug log
 struct Prompt {
   uint32_t player;
   uint32_t reason;
+  bool vehicle = false;  // the game asks for a vehicle, not for a Skylander
 };
 
 // The player the game is waiting for, if its "place your Skylander" prompt is up.
@@ -102,7 +105,14 @@ std::optional<Prompt> CurrentPrompt(rex::memory::Memory* memory) {
     if (*state == kStateZoomOut && player && *player < 4) skylanders::PortalScreenComing(*player);
   }
   const auto reason = ReadGuest32(memory, *instance + kReasonOffset);
-  if (!state || !player || !reason || *state != kStateIdle || *player >= 4) return std::nullopt;
+  if (!state || !player || !reason) return std::nullopt;
+  // A Skylander died: the game waits for that player's next one, as at its prompt.
+  if (*state == kStateDead && *player < 4) return Prompt{*player, *reason};
+  if (*state != kStateIdle) return std::nullopt;
+  // The vehicle request ("Bitte platziere ein Landfahrzeug auf das magische Portal"): Idle with no
+  // player (_currentPlayerId -1, the owner's logs of 2026-10-25), where a Skylander prompt names one.
+  if (*player == 0xFFFFFFFFu) return Prompt{0, *reason, true};
+  if (*player >= 4) return std::nullopt;
   return Prompt{*player, *reason};
 }
 
@@ -123,6 +133,8 @@ void Watch(rex::memory::Memory* memory) {
   std::optional<uint32_t> waiting_for;  // player whose prompt is up
   Clock::time_point since{};
   bool opened = false;
+  bool vehicle_request = false, vehicle_opened = false;
+  Clock::time_point vehicle_since{};
   std::optional<Clock::time_point> error_since, check_shown;
   while (!g_stop.load()) {
     if (const auto error = CurrentError(memory)) {
@@ -140,7 +152,23 @@ void Watch(rex::memory::Memory* memory) {
     }
     const std::optional<Prompt> prompt = CurrentPrompt(memory);
     const std::optional<uint32_t> player =
-        prompt ? std::optional<uint32_t>(prompt->player) : std::nullopt;
+        prompt && !prompt->vehicle ? std::optional<uint32_t>(prompt->player) : std::nullopt;
+    // The vehicle request: the menu opens on the vehicles and the Skylander stays on
+    // (skylanders::AutoOpenPortalMenuForCompanion; opened with the button it lifted the Skylander,
+    // and the vehicle went on only after the game stopped being busy, 10 s later).
+    const bool vehicle = prompt && prompt->vehicle;
+    if (vehicle != vehicle_request) {
+      vehicle_request = vehicle;
+      vehicle_since = Clock::now();
+      vehicle_opened = false;
+      if (!vehicle) skylanders::CompanionRequestEnded();
+    }
+    if (vehicle_request && !vehicle_opened && Clock::now() - vehicle_since >= kOpenDelay) {
+      REXLOG_INFO("Magic moment: the game asks for a vehicle (reason {}; the menu opens on the "
+                  "vehicles)", prompt->reason);
+      skylanders::AutoOpenPortalMenuForCompanion(0, skylanders::portal::Element::kNone);
+      vehicle_opened = true;
+    }
     if (player != waiting_for) {
       if (waiting_for && opened) skylanders::CloseAutoOpenedPortalMenu();
       waiting_for = player;
