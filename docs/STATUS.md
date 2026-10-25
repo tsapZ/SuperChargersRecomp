@@ -275,3 +275,11 @@ launcher's achievements screen.
   Rusher-Zahnradkappe", not 268 "Shark Tank-Zylinder"); vehicles show no hat.
 - Test runs use a short junction to the scratch data: with the full path the options save passed
   Windows' 260 characters and the game called it damaged (not a problem of the game).
+
+## 2026-10-25: 0.2.0-beta.2
+
+- The setup's version for what came since 0.2.0-beta.1: the vehicle request and a Skylander's death open the portal menu (#8), versions to choose (#10), hats (#9). Also in every game: the portal overview (Back + Y / F5: what is on the portal, taken off one by one without lifting the
+  Skylander) and F4 > Controller (button jobs, vibration strength per player; not yet tried with a
+  real controller), skylanders-portal f2c4940 / 6e96c16; an A press right after the menu opened by
+  itself no longer picks a figure (SwapForceRecomp #72); one bad command-line option no longer drops
+  the others (rexglue-sdk 605000d).
