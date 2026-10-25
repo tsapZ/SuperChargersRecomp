@@ -42,6 +42,12 @@ vehicles. `src/game/magic_moment_watch.cpp` polls it every 30 ms (only reads):
 The menu opens for that player when the prompt has been up for a moment, and closes again when the
 game stops waiting and nothing was chosen; the error screen opens the portal check.
 
+The vehicle the game wants is in the `CVehicleManager` singleton (global 0x83771990): +0x54
+`_requiredVehicleType` 1 land, 2 sky, 3 sea (0 any), +0x50 `_requiredVehicleElement` (an elemental
+gate). A gate or a level script sets them. At the vehicle request (the prompt with no player) and at
+the "wrong vehicle" error screen (`_errorType` 11, or 10 for the element) the menu opens on the
+vehicles, on that terrain's row and that element's first card, instead of the portal check.
+
 ## Portal check
 
 Lists everything on the emulated portal, marks what there is too much of, and takes off what the

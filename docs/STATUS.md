@@ -310,3 +310,12 @@ launcher's achievements screen.
   the same wording in every game where the setting is the same. The Back + Y row is called
   "Portal-Übersicht" now (it opens the portal overview since skylanders-portal f2c4940).
   skylanders-portal 2a97055.
+- **The vehicle the game wants, on its terrain** (the owner, 2026-10-25): the CVehicleManager
+  singleton (0x83771990) keeps the wanted terrain (+0x54: 1 land, 2 sky, 3 sea) and element
+  (+0x50), set by a gate or the level script. The vehicle request and the "wrong vehicle" error
+  screen (_errorType 11 / 10) open the menu on that terrain's row and that element's card; the
+  wrong-vehicle screen no longer opens the portal check. Found from the class's field
+  registration; not yet seen at a gate.
+- **Hints in the pad's own buttons** (Core of Light #29, skylanders-portal 39ab210): after a press on a
+  PlayStation pad the menus' hints show its symbols and L1 / R1 / Options, on a Nintendo pad its
+  letters in their places and L / R / ZL / ZR / +; Xbox-like pads stay as they were.

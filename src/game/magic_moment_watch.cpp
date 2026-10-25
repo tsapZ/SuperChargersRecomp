@@ -24,6 +24,22 @@
 //   +0x1FC      _currentPlayerId: 0 = player 1, 1 = player 2, -1 = none
 // The error screen opens the portal check instead, so the player can take off what is too much.
 //
+// The vehicle the game wants (the owner, 2026-10-25: at a gate "you need a land vehicle" the menu
+// should open on that terrain): the CVehicleManager singleton keeps it. Found 2026-10-25 from the
+// class's field registration (sub_824A8958 with names, types and u16 offsets, the same way as the
+// CMagicMoment fields above) and the code around it:
+//   0x83771990  global pointer to the instance (set by sub_82CECE70)
+//   +0x50       _requiredVehicleElement: 1 Earth, 2 Water, 3 Air, 4 Fire, 5 Life, 6 Death (Undead),
+//               7 Magic, 8 Tech, 9 Light, 10 Dark; 0 none
+//   +0x54       _requiredVehicleType (EVehicleType): 1 Driving (land), 2 Flying (sky), 3 Hover
+//               (sea), 0 none; the same numbers as the vehicle toy data's terrain
+// A gate's section start (sub_82E4A180) and the level scripts (setRequiredVehicleType) set them,
+// the section's end clears them. CMagicMoment's portal check (sub_82A289D8) compares the vehicle on
+// the portal with them: none there is the vehicle request (Idle, no player, reason 13); a wrong one
+// is the error screen with _errorType 10 (VehicleWrongElement) or 11 (VehicleWrongType), whose
+// prompt names the terrain from +0x54 ("LAND-FAHRZEUG"). Both open the menu on that terrain's
+// vehicles now; the wrong-vehicle screen no longer opens the portal check.
+//
 // Polling instead of a mid-asm hook keeps the generated code untouched and costs three guest
 // reads every 30 ms. It only reads: every address is checked to be committed guest memory before
 // it is touched, and implausible values are ignored, so a stale pointer can't do harm.
@@ -64,6 +80,12 @@ constexpr uint32_t kCheckReasonOther = 0;
 constexpr uint32_t kCheckReasonTooManySkylanders = 1;
 constexpr uint32_t kErrorTooManyCharacterToys = 1;
 constexpr uint32_t kErrorTooManyCharacterToysForPlayer = 2;
+constexpr uint32_t kErrorVehicleWrongElement = 10;
+constexpr uint32_t kErrorVehicleWrongType = 11;
+// The vehicle the game wants (see the top of this file).
+constexpr uint32_t kVehicleManagerInstance = 0x83771990;
+constexpr uint32_t kRequiredElementOffset = 0x50;
+constexpr uint32_t kRequiredTypeOffset = 0x54;
 // The error screen must stay this long before the portal check opens, and if it was closed with
 // the error still up, it comes back after a while.
 constexpr auto kErrorDelay = std::chrono::milliseconds(400);
@@ -118,7 +140,7 @@ std::optional<Prompt> CurrentPrompt(rex::memory::Memory* memory) {
   return Prompt{*player, *reason};
 }
 
-// The portal check's reason for the game's portal error screen while it is up.
+// The game's portal error screen while it is up: its _errorType.
 std::optional<uint32_t> CurrentError(rex::memory::Memory* memory) {
   const auto instance = ReadGuest32(memory, kMagicMomentInstance);
   if (!instance || !*instance) return std::nullopt;
@@ -126,9 +148,45 @@ std::optional<uint32_t> CurrentError(rex::memory::Memory* memory) {
   if (!state || *state != kStateError) return std::nullopt;
   const auto error = ReadGuest32(memory, *instance + kErrorTypeOffset);
   if (!error || *error > 64) return std::nullopt;
-  return *error == kErrorTooManyCharacterToys || *error == kErrorTooManyCharacterToysForPlayer
+  return *error;
+}
+
+// The portal check's reason for an error screen.
+uint32_t CheckReason(uint32_t error) {
+  return error == kErrorTooManyCharacterToys || error == kErrorTooManyCharacterToysForPlayer
              ? kCheckReasonTooManySkylanders
              : kCheckReasonOther;
+}
+
+// The vehicle the game wants: its terrain (1 land, 2 sky, 3 sea; 0 any) and element (kNone: any).
+struct WantedVehicle {
+  int terrain = 0;
+  skylanders::portal::Element element = skylanders::portal::Element::kNone;
+};
+WantedVehicle CurrentWantedVehicle(rex::memory::Memory* memory) {
+  using skylanders::portal::Element;
+  WantedVehicle wanted;
+  const auto manager = ReadGuest32(memory, kVehicleManagerInstance);
+  if (!manager || !*manager) return wanted;
+  if (const auto type = ReadGuest32(memory, *manager + kRequiredTypeOffset); type && *type >= 1 && *type <= 3) {
+    wanted.terrain = int(*type);
+  }
+  static constexpr Element kElements[] = {Element::kNone,  Element::kEarth, Element::kWater, Element::kAir,
+                                          Element::kFire,  Element::kLife,  Element::kUndead, Element::kMagic,
+                                          Element::kTech,  Element::kLight, Element::kDark};
+  if (const auto element = ReadGuest32(memory, *manager + kRequiredElementOffset); element && *element <= 10) {
+    wanted.element = kElements[*element];
+  }
+  return wanted;
+}
+
+// The menu on the vehicles, on the wanted terrain's row (and element's card) when the game names one.
+void OpenVehicleMenu(rex::memory::Memory* memory, const char* why) {
+  const WantedVehicle wanted = CurrentWantedVehicle(memory);
+  static constexpr const char* kTerrains[] = {"any", "land", "sky", "sea"};
+  REXLOG_INFO("Magic moment: {} (terrain {}, element {}; the menu opens on the vehicles)", why,
+              kTerrains[wanted.terrain], skylanders::portal::ElementName(wanted.element));
+  skylanders::AutoOpenPortalMenuForVehicle(0, wanted.terrain, wanted.element);
 }
 
 void Watch(rex::memory::Memory* memory) {
@@ -138,17 +196,26 @@ void Watch(rex::memory::Memory* memory) {
   bool vehicle_request = false, vehicle_opened = false;
   Clock::time_point vehicle_since{};
   std::optional<Clock::time_point> error_since, check_shown;
+  bool wrong_vehicle = false;  // the error screen is a wrong vehicle's and opened the menu
   while (!g_stop.load()) {
     if (const auto error = CurrentError(memory)) {
       const auto now = Clock::now();
       if (!error_since) error_since = now;
       if (now - *error_since >= kErrorDelay && (!check_shown || now - *check_shown >= kErrorRepeat)) {
-        REXLOG_INFO("Magic moment: the game shows its portal error (check {})", *error);
-        skylanders::ShowPortalCheck(*error);
+        if (*error == kErrorVehicleWrongType || *error == kErrorVehicleWrongElement) {
+          // A wrong vehicle on the portal: the right ones to pick instead of the portal check.
+          OpenVehicleMenu(memory, "the vehicle on the portal is the wrong one");
+          wrong_vehicle = true;
+        } else {
+          REXLOG_INFO("Magic moment: the game shows its portal error (check {})", CheckReason(*error));
+          skylanders::ShowPortalCheck(CheckReason(*error));
+        }
         check_shown = now;
       }
     } else if (error_since) {
-      if (check_shown) skylanders::ClosePortalCheck();
+      if (check_shown && !wrong_vehicle) skylanders::ClosePortalCheck();
+      if (wrong_vehicle) skylanders::CompanionRequestEnded();
+      wrong_vehicle = false;
       error_since.reset();
       check_shown.reset();
     }
@@ -166,9 +233,7 @@ void Watch(rex::memory::Memory* memory) {
       if (!vehicle) skylanders::CompanionRequestEnded();
     }
     if (vehicle_request && !vehicle_opened && Clock::now() - vehicle_since >= kOpenDelay) {
-      REXLOG_INFO("Magic moment: the game asks for a vehicle (reason {}; the menu opens on the "
-                  "vehicles)", prompt->reason);
-      skylanders::AutoOpenPortalMenuForCompanion(0, skylanders::portal::Element::kNone);
+      OpenVehicleMenu(memory, "the game asks for a vehicle");
       vehicle_opened = true;
     }
     if (player != waiting_for) {
