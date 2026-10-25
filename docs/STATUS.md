@@ -245,3 +245,18 @@ launcher's achievements screen.
 - Checked: every game boots to its first menus on fresh scratch data with the new data folder
   code (with --user_data_root, so the copy itself was checked in the launcher on a scratch
   Documents).
+
+## 2026-10-25: 0.2.0-beta.1
+
+- **Vehicles next to the Skylander** (#6; skylanders-portal 2278b99): each player's vehicle goes
+  in a slot of its own and no longer lifts the player's Skylander.
+- **The old sidekicks are Minis here** (Core of Light #32): they go on as a player's Skylander.
+- **Bowser, Donkey Kong and their vehicles hidden** (ImaginatorsRecomp #7): the 360 disc doesn't
+  have them; `portal_menu_nintendo = true` lists them.
+- **One "Bildrate" row as in the other games**: the "60 FPS und mehr" switch is gone.
+- Checked: Splat placed, then Soda Skimmer: the vehicle in slot 1, Splat stays.
+- **Mouse wheel in the menus** (SwapForceRecomp #65; skylanders-portal ccc7009): F4's rows, the
+  portal menu's cards and its variant list scroll a row per notch; the chosen row stays, and the view
+  follows it again once the keys or the pad move it.
+- **A chosen 4x texture filter stays 4x** (Core of Light #21, a colleague's report and fix;
+  skylanders-portal 23be5f2): 4x is the SDK's own default, so it counted as unset and became 16x.
