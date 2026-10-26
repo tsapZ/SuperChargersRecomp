@@ -12,7 +12,7 @@ Updated at the end of every session. Only record what a build actually did.
 | Codegen | works with 28 `config/default.toml` entries: function starts the analyzer put one instruction late |
 | Boot | ✅ logo movies, the title screen ("PULSA START"), "¡Elige tu estilo de juego!" (difficulty), the mode books (Aventura, Carreras), the save slots, then the long opening movie (Start pauses it, doesn't skip it); no crash in 5 minutes |
 | Portal menu | ✅ opens with Guide; shows the game's own round collection icons for every Skylander, vehicle, trap and magic item, each figure's variant where the game has one; opens by itself when the game asks for a Skylander, the portal check on the "too many" screens; a vehicle's card shows its terrain (land, sea, sky) with the game's symbol; the details view shows the hat (name, icon, stats) and every Skylander's upgrade tree with the game's pictures and prices |
-| Languages | the European **English / German** disc runs as it is (its own German and English); the European Spanish / Italian disc (347 language files each, `*_es.pak` / `*_it.pak`) takes German or English from the En/De disc with tools/german_text.py |
+| Languages | the European **English / German** disc runs as it is (its own German and English); the European Spanish / Italian disc (347 language files each, `*_es.pak` / `*_it.pak`) takes English or German from the En/De disc with tools/add_language.py (called german_text.py before) |
 
 ## 2026-10-21: session log
 

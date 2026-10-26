@@ -91,17 +91,18 @@ Two European Xbox 360 discs run (the same build; [docs/game/discs.md](docs/game/
 Other regions (USA and others) are refused at start: their executable differs, and the port's
 addresses are made for this one.
 
-### German (or English) on the Spanish / Italian disc
+### English or German on the Spanish / Italian disc
 
-If you own the Es/It disc and also the En/De disc (or the PS3 disc), `tools/german_text.py` puts
-the other disc's German text and voices into your extracted Es/It disc (`rom/`); the game then runs
-in German throughout. With the En/De disc the voices are the game's own Xbox 360 banks.
+If you own the Es/It disc and also the En/De disc (or the PS3 disc), `tools/add_language.py` (it
+was called `german_text.py`) puts the other disc's English or German text and voices into your
+extracted Es/It disc (`rom/`); the game then runs in that language throughout. With the En/De disc
+the voices are the game's own Xbox 360 banks.
 
-    python tools/german_text.py --xbox360 "D:\path\to\the En-De disc.iso" --voices
-    python tools/german_text.py --ps3 "D:\path\to\the PS3 disc.iso" [--voices]
-    python tools/german_text.py --restore        (back to the disc's Spanish)
+    python tools/add_language.py --language en --xbox360 "D:\path\to\the En-De disc.iso" --voices
+    python tools/add_language.py --language de --ps3 "D:\path\to\the PS3 disc.iso" [--voices]
+    python tools/add_language.py --restore        (back to the disc's Spanish)
 
-`--language en` puts in English instead. It needs Python 3, and extract-xiso (in `installer/`) for
+`--language` picks English (`en`) or German (`de`). It needs Python 3, and extract-xiso (in `installer/`) for
 an Xbox 360 .iso or 7-Zip for a PS3 .iso; an already extracted disc folder works as well. The title
 screen, the licence agreement and the Xbox 360's own messages change too. With the En/De disc
 itself none of this is needed: extract it into `rom/` and play.
