@@ -4,11 +4,14 @@
 
 #include <memory>
 
-#include "game/alchemy/iga_archive.h"
+#include "alchemy/iga_archive.h"
 #include "portal_rex/portal_menu.h"
 #include "portal_rex/settings_menu.h"
 
 namespace superchargersrecomp {
+
+// The games' shared Alchemy readers (skylanders-portal src/alchemy).
+namespace alchemy = skylanders::alchemy;
 
 // The art key the picture is served under ("controller:xbox360").
 extern const char kControllerArtKey[];

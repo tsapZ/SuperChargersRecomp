@@ -47,10 +47,6 @@ endif()
 # Sources
 set(SUPERCHARGERSRECOMP_SOURCES
     src/main.cpp
-    src/game/alchemy/iga_archive.cpp
-    src/game/alchemy/igz_file.cpp
-    src/game/alchemy/inflate.cpp
-    src/game/alchemy/lzma_decoder.cpp
     src/game/kernel_stubs.cpp
     src/game/magic_moment_watch.cpp
     src/game/game_fonts.cpp
@@ -61,9 +57,6 @@ set(SUPERCHARGERSRECOMP_SOURCES
     src/game/toy_upgrades.cpp
     src/localization.cpp
     src/settings_pages.cpp
-    src/dev/gpu_diagnostics.cpp
-    src/dev/input_script.cpp
-    src/dev/write_watch.cpp
     src/hooks/figure_intro_hook.cpp
     src/hooks/frame_rate_hook.cpp
     src/hooks/fxaa_scale_hook.cpp
@@ -85,8 +78,6 @@ rexglue_setup_target(superchargersrecompiled GPU_PLUGINS xenos)
 if(REXSDK_DIR)
     # An installed SDK ships imgui's headers next to its own; an in-tree build must point at them.
     target_include_directories(superchargersrecompiled PRIVATE "${REXSDK_DIR}/thirdparty/imgui")
-    # stb_image's zlib decoder for the deflate-compressed game archives (src/game/alchemy/inflate.cpp).
-    target_include_directories(superchargersrecompiled PRIVATE "${REXSDK_DIR}/thirdparty/stb")
 endif()
 
 # Seed a fresh build dir with the settings-file template. Never overwrites an existing one: the
@@ -95,58 +86,13 @@ if(NOT EXISTS "${CMAKE_BINARY_DIR}/superchargersrecomp.toml")
     file(COPY_FILE "${CMAKE_CURRENT_SOURCE_DIR}/superchargersrecomp.toml.example" "${CMAKE_BINARY_DIR}/superchargersrecomp.toml")
 endif()
 
-# --- Pinned game executable -------------------------------------------------
-set(SUPERCHARGERSRECOMP_XEX_HASH_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/game/default.xex.sha256")
-set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${SUPERCHARGERSRECOMP_XEX_HASH_FILE}")
-# One SHA-256 per line: every disc this port runs (docs/game/discs.md). They go to the code as one
-# comma-separated string.
-file(STRINGS "${SUPERCHARGERSRECOMP_XEX_HASH_FILE}" SUPERCHARGERSRECOMP_XEX_HASH_LINES REGEX "^[0-9a-fA-F]+")
-set(SUPERCHARGERSRECOMP_XEX_SHA256 "")
-foreach(line IN LISTS SUPERCHARGERSRECOMP_XEX_HASH_LINES)
-    string(REGEX MATCH "^[0-9a-fA-F]+" hash "${line}")
-    string(LENGTH "${hash}" hash_len)
-    if(NOT hash_len EQUAL 64)
-        message(FATAL_ERROR "docs/game/default.xex.sha256: every line must start with a 64-character hex SHA-256 (found ${hash_len} hex characters)")
-    endif()
-    if(SUPERCHARGERSRECOMP_XEX_SHA256)
-        string(APPEND SUPERCHARGERSRECOMP_XEX_SHA256 ",")
-    endif()
-    string(APPEND SUPERCHARGERSRECOMP_XEX_SHA256 "${hash}")
-endforeach()
-if(NOT SUPERCHARGERSRECOMP_XEX_SHA256)
-    message(FATAL_ERROR "docs/game/default.xex.sha256 holds no SHA-256")
-endif()
-
-add_library(superchargersrecomp_verify STATIC src/xex_verify.cpp)
-target_include_directories(superchargersrecomp_verify PUBLIC src)
-# Uses the SDK's vendored, portable SHA-256 (thirdparty/crypto) instead of a platform crypto API
-# (BCrypt on Windows has no Linux/macOS equivalent), so this one implementation covers every preset.
-if(NOT REXSDK_DIR)
-    message(FATAL_ERROR "REXSDK_DIR must be set (superchargersrecomp_verify needs its vendored SHA-256 implementation)")
-endif()
-target_include_directories(superchargersrecomp_verify PRIVATE "${REXSDK_DIR}/thirdparty")
-target_sources(superchargersrecomp_verify PRIVATE "${REXSDK_DIR}/thirdparty/crypto/sha256.cpp")
-
-target_link_libraries(superchargersrecompiled PRIVATE superchargersrecomp_verify skylanders_portal_rex)
+target_link_libraries(superchargersrecompiled PRIVATE skylanders_portal_rex skylanders_alchemy)
 # The exe's icon: the game's logo from the owner's disc (rom/nxeart), made at build time (#5).
 skylanders_game_icon(superchargersrecompiled "${CMAKE_CURRENT_SOURCE_DIR}/rom")
-target_compile_definitions(superchargersrecompiled PRIVATE SUPERCHARGERSRECOMP_XEX_SHA256="${SUPERCHARGERSRECOMP_XEX_SHA256}")
 
-enable_testing()
-add_executable(superchargersrecomp_tests tests/xex_verify_test.cpp)
-target_link_libraries(superchargersrecomp_tests PRIVATE superchargersrecomp_verify)
-add_test(NAME xex_verify COMMAND superchargersrecomp_tests)
-
-add_executable(superchargersrecomp_xexcheck src/tools/xex_check_cli.cpp)
-target_link_libraries(superchargersrecomp_xexcheck PRIVATE superchargersrecomp_verify)
-target_compile_definitions(superchargersrecomp_xexcheck PRIVATE SUPERCHARGERSRECOMP_XEX_SHA256="${SUPERCHARGERSRECOMP_XEX_SHA256}")
-
-# Process-boundary test: runs the actual built superchargersrecomp_xexcheck.exe against a non-ASCII path to
-# catch argv narrowing (a plain main(argc, char**) loses characters outside the system code page on
-# Windows). Depends on superchargersrecomp_xexcheck existing in the same output directory at test time.
-add_executable(xex_check_cli_argv_test tests/xex_check_cli_argv_test.cpp)
-add_test(NAME xex_check_cli_argv COMMAND xex_check_cli_argv_test)
-
-add_executable(xex_check_exit_code_test tests/xex_check_exit_code_test.cpp)
-target_include_directories(xex_check_exit_code_test PRIVATE src)
-add_test(NAME xex_check_exit_code COMMAND xex_check_exit_code_test)
+# --- Pinned game executable -------------------------------------------------
+# The disc check (skylanders-portal src/xex, cmake/game_xex.cmake): the supported discs' SHA-256
+# from docs/game/default.xex.sha256 in the game and in superchargersrecomp_xexcheck, the installer's check,
+# with their tests.
+skylanders_game_xex(TARGET superchargersrecompiled PREFIX superchargersrecomp TITLE "Skylanders: SuperChargers"
+                    HASH_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/game/default.xex.sha256")

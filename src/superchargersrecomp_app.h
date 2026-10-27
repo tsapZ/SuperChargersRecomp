@@ -43,7 +43,7 @@
 #include "portal_rex/title_music.h"
 #include "settings_pages.h"
 #include "portal_rex/portal_rex.h"
-#include "xex_verify.h"
+#include "xex/xex_verify.h"
 
 // Manual override for the ImGui overlay's size, since there's no reliable way to auto-detect "the
 // default looks too small/big" across platforms: the SDK's own physical-to-logical DPI conversion
@@ -114,7 +114,7 @@ class SuperchargersrecompApp : public rex::ReXApp {
     // screen gets the wider picture by itself (UltrawideActive below reads `resolution`).
     skylanders::ResolutionFromScreenIfAutomatic();
     // Before the GPU plugin creates its device (testing only, gpu_crash_diagnostics).
-    superchargersrecomp::EnableGpuCrashDiagnostics();
+    skylanders::dev::EnableGpuCrashDiagnostics();
     // A wider window with ultrawide_fov: the picture fills it (the camera sees more to the sides)
     // instead of the presenter's black bars, unless present_letterbox was set by hand.
     if (superchargersrecomp::UltrawideActive() && !rex::cvar::HasNonDefaultValue("present_letterbox")) {
@@ -176,7 +176,7 @@ class SuperchargersrecompApp : public rex::ReXApp {
     skylanders::StartTitleMusicExport(game_data_root(), TitleMusic(),
                                       skylanders::SharedPicturesDir(user_data_root(), "SuperChargers"));
     // A real crash logs where in the game it happened (guest call chain and registers).
-    superchargersrecomp::InstallCrashReport(runtime()->memory());
+    skylanders::dev::InstallCrashReport(runtime()->memory());
     // Pictures for the portal menu from the game's own files: the collection icons of every
     // Skylander, vehicle, trap and item, each figure's own variant where the game has one.
     superchargersrecomp::InstallToyImages(game_data_root_);
@@ -192,7 +192,7 @@ class SuperchargersrecompApp : public rex::ReXApp {
         [this]() -> rex::system::AchievementManager* {
           return runtime() && runtime()->kernel_state() ? &achievements() : nullptr;
         });
-    superchargersrecomp::InstallInputScript(
+    skylanders::dev::InstallInputScript(
         runtime()->input_system(), runtime()->memory(),
         [this]() -> uint64_t {
           auto* graphics_system = runtime() ? runtime()->graphics_system() : nullptr;
@@ -317,9 +317,10 @@ class SuperchargersrecompApp : public rex::ReXApp {
     const auto xex = game_data_root_ / "default.xex";
     // Utf8() and wide messages, not path::string(): that throws for characters outside the ANSI
     // code page, and this runs on every startup.
-    REXLOG_INFO("Checking {} against the pinned SHA-256", superchargersrecomp::Utf8(xex));
-    const auto result = superchargersrecomp::VerifyXex(xex, SUPERCHARGERSRECOMP_XEX_SHA256);
-    const auto problem = superchargersrecomp::DescribeXexProblem(xex, result, SUPERCHARGERSRECOMP_XEX_SHA256);
+    REXLOG_INFO("Checking {} against the pinned SHA-256", skylanders::xex::Utf8(xex));
+    const auto result = skylanders::xex::VerifyXex(xex, SKYLANDERS_XEX_SHA256);
+    const auto problem = skylanders::xex::DescribeXexProblem(
+        xex, result, SKYLANDERS_XEX_SHA256, SKYLANDERS_GAME_TITLE);
     if (problem.empty()) {
       REXLOG_INFO("default.xex verified");
       return;

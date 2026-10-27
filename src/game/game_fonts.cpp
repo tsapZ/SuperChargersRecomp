@@ -24,10 +24,13 @@
 
 #include <rex/logging.h>
 
-#include "game/alchemy/iga_archive.h"
-#include "game/alchemy/igz_file.h"
+#include "alchemy/iga_archive.h"
+#include "alchemy/igz_file.h"
 
 namespace superchargersrecomp {
+
+// The games' shared Alchemy readers (skylanders-portal src/alchemy).
+namespace alchemy = skylanders::alchemy;
 namespace {
 
 using alchemy::IgaArchive;

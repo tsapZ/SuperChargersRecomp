@@ -24,9 +24,12 @@
 #include <utility>
 #include <vector>
 
-#include "game/alchemy/igz_file.h"
+#include "alchemy/igz_file.h"
 
 namespace superchargersrecomp {
+
+// The games' shared Alchemy readers (skylanders-portal src/alchemy).
+namespace alchemy = skylanders::alchemy;
 
 const char kControllerArtKey[] = "controller:xbox360";
 

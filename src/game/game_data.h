@@ -11,11 +11,14 @@
 #include <unordered_map>
 #include <vector>
 
-#include "game/alchemy/iga_archive.h"
-#include "game/alchemy/igz_file.h"
+#include "alchemy/iga_archive.h"
+#include "alchemy/igz_file.h"
 #include "portal_rex/portal_menu.h"
 
 namespace superchargersrecomp {
+
+// The games' shared Alchemy readers (skylanders-portal src/alchemy).
+namespace alchemy = skylanders::alchemy;
 
 // The game's text in one language (a .lng file): each object's localized fields
 // ("<object>|<field>"), and the localized hash tables by field, which translate an English text
