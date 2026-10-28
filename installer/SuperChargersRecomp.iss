@@ -1,5 +1,5 @@
 #define MyAppName "SuperChargers Recompiled"
-#define MyAppVersion "0.3.0-beta.3"
+#define MyAppVersion "0.3.0-beta.4"
 #define MyAppExeName "superchargersrecompiled.exe"
 
 [Setup]
