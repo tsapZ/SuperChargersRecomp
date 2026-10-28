@@ -6,6 +6,16 @@
 #
 # Entries are added as codegen and the runtime report them.
 
+# The CRT's setjmp (0x836C14A0: stores f14-f31, r13-r31, v64-v127, LR and CR into the buffer in r3)
+# and longjmp (0x835F7E90: loads them back from it), found by their shape (the same CRT code as
+# SSARecomp's). Recompiled as is, longjmp only sets the guest registers and returns to its caller,
+# so whatever setjmp guards (in SSARecomp the game's Lua errors inside a pcall) ran on into exit(1)
+# and crashed in the exit handlers (SSARecomp #42). With the addresses set, codegen turns the calls
+# into the host setjmp/longjmp of the generated header (ppc_setjmp/ppc_longjmp), which also restore
+# the guest registers. Safe: setjmp and longjmp have no other job, and every register lives in ctx.
+setjmp_address = 0x836C14A0
+longjmp_address = 0x835F7E90
+
 # 0x831C7CC8 is in BinkOpen (Bink 2), right after it reads the 44-byte movie header into r1+112
 # (li r6,44; addi r5,r1,112; bctrl in sub_831C7AF8) and just before the signature compares
 # (lis r11,0x6632 / ori 0x424B, "KB2f" and later). Found in the generated code by the same shape as
