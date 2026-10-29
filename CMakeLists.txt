@@ -65,6 +65,7 @@ set(SUPERCHARGERSRECOMP_SOURCES
     src/hooks/scene_size_hook.cpp
     src/hooks/stuck_falling_hook.cpp
     src/hooks/ultrawide_hook.cpp
+    src/hooks/where_hook.cpp
 )
 
 if(WIN32)

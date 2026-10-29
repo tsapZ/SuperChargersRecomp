@@ -26,6 +26,7 @@
 #include "dev/input_script.h"
 #include "dev/write_watch.h"
 #include "hooks/ultrawide_hook.h"
+#include "hooks/where_hook.h"
 #include "game/game_fonts.h"
 #include "game/magic_moment_watch.h"
 #include "game/controller_picture.h"
@@ -177,6 +178,8 @@ class SuperchargersrecompApp : public rex::ReXApp {
                                       skylanders::SharedPicturesDir(user_data_root(), "SuperChargers"));
     // A real crash logs where in the game it happened (guest call chain and registers).
     skylanders::dev::InstallCrashReport(runtime()->memory());
+    // And where the player was (the level and position), in the log and with a problem note.
+    superchargersrecomp::InstallWhere();
     // Pictures for the portal menu from the game's own files: the collection icons of every
     // Skylander, vehicle, trap and item, each figure's own variant where the game has one.
     superchargersrecomp::InstallToyImages(game_data_root_);
