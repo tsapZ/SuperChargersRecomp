@@ -30,7 +30,7 @@ uint32_t Load32(uint8_t* base, uint32_t address) { return rex::memory::load_and_
 float LoadFloat(uint8_t* base, uint32_t address) { return rex::memory::load_and_swap<float>(base + address); }
 bool GuestPointer(uint32_t v) { return v >= 0x40000000 && v < 0xC0000000; }
 
-// "game:\archives\Nat2.pak" -> "Nat2"; "" for any other file.
+// "D:\archives\Nat2.pak" -> "Nat2"; "" for any other file.
 std::string LevelOfArchive(std::string_view path) {
   static const std::regex level(
       R"((?:^|[\\/])((?:Academy|Intro1|Nat\d|Sky\d|Quest\d|Dark\d|Mag\d|Final\d|AP[ALS]\d))\.pak$)", std::regex::icase);
