@@ -53,6 +53,7 @@ set(SUPERCHARGERSRECOMP_SOURCES
     src/game/controller_picture.cpp
     src/game/game_data.cpp
     src/game/hats.cpp
+    src/game/level_names.cpp
     src/game/toy_images.cpp
     src/game/toy_upgrades.cpp
     src/localization.cpp

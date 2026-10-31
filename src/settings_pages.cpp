@@ -6,6 +6,7 @@
 #include <rex/cvar.h>
 
 #include "portal_rex/achievements_ui.h"
+#include "portal_rex/discord_presence.h"
 #include "portal_rex/player_menu.h"
 #include "portal_rex/settings_schema.h"
 
@@ -355,6 +356,7 @@ SettingsPage GamePage() {
        "Kurz: 1,5 Sekunden, der Figurwechsel ist etwa 3 Sekunden schneller.",
        {{"0", "As in the game", "Wie im Spiel"}, {"1.5", "Short", "Kurz"}}});
   page.settings.push_back(skylanders::AchievementsSetting());
+  page.settings.push_back(skylanders::DiscordPresenceSetting());
   // Spiel beenden / neu starten: a controller alone can't press Alt+F4.
   skylanders::AddQuitSettings(page);
   return page;

@@ -31,11 +31,13 @@
 #include "game/magic_moment_watch.h"
 #include "game/controller_picture.h"
 #include "game/hats.h"
+#include "game/level_names.h"
 #include "game/toy_images.h"
 #include "game/toy_upgrades.h"
 #include "dev/gpu_diagnostics.h"
 #include "localization.h"
 #include "portal_rex/achievements_ui.h"
+#include "portal_rex/discord_presence.h"
 #include "portal_rex/portal_menu.h"
 #include "portal_rex/portal_menu_input.h"
 #include "portal_rex/player_menu.h"
@@ -176,6 +178,8 @@ class SuperchargersrecompApp : public rex::ReXApp {
     // And the title music, once (title_music.h).
     skylanders::StartTitleMusicExport(game_data_root(), TitleMusic(),
                                       skylanders::SharedPicturesDir(user_data_root(), "SuperChargers"));
+    // The Discord status, when the player switched it on (F4 > Spiel).
+    skylanders::StartDiscordPresence("SuperChargers");
     // A real crash logs where in the game it happened (guest call chain and registers).
     skylanders::dev::InstallCrashReport(runtime()->memory());
     // And where the player was (the level and position), in the log and with a problem note.
@@ -185,6 +189,8 @@ class SuperchargersrecompApp : public rex::ReXApp {
     superchargersrecomp::InstallToyImages(game_data_root_);
     superchargersrecomp::InstallHats(game_data_root_);
     superchargersrecomp::InstallToyUpgrades(game_data_root_);
+    // The levels' names for the Discord status.
+    superchargersrecomp::InstallLevelNames(game_data_root_);
     // The portal menu opens by itself when the game asks for a Skylander or a vehicle.
     superchargersrecomp::StartMagicMomentWatch(runtime()->memory());
     // Items go on and off the portal only once the player's Skylander is back in the game.
