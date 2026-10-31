@@ -98,7 +98,7 @@ What's being worked on: [docs/roadmap.md](docs/roadmap.md). Known bugs and the d
 ## Help
 
 **The setup says it's the wrong disc.** This port is made for the European discs (see
-[Which disc](#which-disc)). If you have another one, open an issue with its name.
+[Which disc](#which-disc)). If you have another one, open an issue with the message (it names the disc's title, region and hash).
 
 **It runs slowly.** Press F4, go to Graphics and pick *Performance*, or a lower internal resolution.
 
@@ -118,7 +118,7 @@ Two European Xbox 360 discs work, the same build with other languages
 | Skylanders - SuperChargers (Europe) **(En,De)** | English and German, text and voices: the one to use |
 | Skylanders - SuperChargers (Europe) (Es,It) | Spanish and Italian; English or German can be added (below) |
 
-Other regions (USA and others) don't work yet: their executable is a different one.
+Any other pressing with the same code works as well: the check also compares the code part of the file ([docs/game/default.xex.code](docs/game/default.xex.code)). Other regions (USA and others) don't work yet: their executable is a different one.
 
 ### English or German on the Spanish / Italian disc
 

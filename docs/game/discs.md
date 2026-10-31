@@ -1,8 +1,8 @@
 # Supported discs
 
 The port runs every Xbox 360 disc whose `default.xex` has one of the SHA-256 hashes in
-`default.xex.sha256` (one per line; the build, the game's own check at start, the installer's
-check tool and the Core of Light launcher all read that list).
+`default.xex.sha256` (one per line), or the code pin in `default.xex.code`; the build, the game's
+own check at start, the installer's check tool and the Core of Light launcher all read both.
 
 | Disc | Languages | `default.xex` SHA-256 | Notes |
 |---|---|---|---|
@@ -30,7 +30,10 @@ RT zum Beschleunigen!" in the tunnel), the hats in the portal menu with their Ge
 
 ## Other discs
 
-Any other region (USA, other European pressings, the PS3, Wii U or Xbox One discs) has a
-different `default.xex` and is refused at start with its hash in the message. If such a disc has
-the same build, adding its hash here (after a comparison as above) is all it takes; a different
-build needs its own address map.
+Any other Xbox 360 pressing whose code pin is the same runs as well, without its hash here. The pin
+is where the code loads and the SHA-256 of the XEX header's page table from there on; the table
+holds a SHA-1 of every run of loaded pages, and from the first code page on it is the same for both
+discs above (only read-only data in front of the code differs), so it needs no decryption. A
+different build (USA and other regions, most likely) is refused at start with its title, region and
+hash in the message, and needs its own address map. The PS3, Wii U and Xbox One discs aren't Xbox
+360 executables at all.
