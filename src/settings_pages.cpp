@@ -492,9 +492,21 @@ SettingsPage ControlsPage() {
 
 }  // namespace
 
+// Extras: cheats (skylanders::CheatSetting: achievements wait while one is on).
+SettingsPage ExtrasPage() {
+  SettingsPage page{"Extras", "Extras", {}};
+  // As in Spyro's Adventure, Giants and Trap Team, same setting name: src/hooks/god_mode_hook.cpp
+  // turns on the game's own god mode, which spares only the players' Skylanders.
+  page.settings.push_back(skylanders::CheatSetting(
+      {"cheat_no_health_loss", "No health loss", "Keine Lebenspunkte verlieren",
+       "Your Skylanders don't lose health when they get hit. Enemies still do.",
+       "Deine Skylander verlieren keine Lebenspunkte, wenn sie getroffen werden. Gegner schon."}));
+  return page;
+}
+
 std::vector<SettingsPage> BuildSettingsPages(std::function<void()> open_all_settings) {
   std::vector<SettingsPage> pages = {GraphicsPage(), FrameRatePage(), GamePage(), PortalPage(),
-                                     ControlsPage()};
+                                     ControlsPage(), ExtrasPage()};
   SettingsPage advanced{"Advanced", "Erweitert", {}};
   Setting all;
   all.en = "All settings (developers, keyboard and mouse)";

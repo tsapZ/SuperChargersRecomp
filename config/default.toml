@@ -202,6 +202,30 @@ address = 0x82F94A78
 name = "StuckFallingRespawnHook"
 registers = ["f1", "f31"]
 
+# No health loss (src/hooks/god_mode_hook.cpp): sub_829E7300 is the game's damage check. 0x829E733C is its
+# compare of the GodMode debug byte (0x8376C5FB, read by the lbz right before) with 0; the hook reports
+# it as set while cheat_no_health_loss is on (off by default), so the game's own god mode spares the
+# players' Skylanders. 0x829E7368 is the first instruction of the block that then zeroes the damage
+# (the hook only logs). 0x829E7360 is the compare of the hit's "force" byte (its description's +100,
+# read by the lbz right before; lava and burning set it, the god mode lets those through); the hook
+# makes it 0 for a victim that got this far (a spared one) while the cheat is on, and r9 is then the
+# 0 the block writes as the damage. Found 2026-11-02 from the check's reason text "Damage reduced when in
+# God-Mode". r10 isn't read again after the compare.
+[[midasm_hook]]
+address = 0x829E733C
+name = "GodModeFlagHook"
+registers = ["r10"]
+
+[[midasm_hook]]
+address = 0x829E7360
+name = "GodModeForcedHook"
+registers = ["r9"]
+
+[[midasm_hook]]
+address = 0x829E7368
+name = "GodModeKeptOffHook"
+registers = []
+
 [functions]
 # 0x8252E1F8 is called through a pointer (the first boot ended with "Call to invalid or
 # unregistered function at guest address 0x8252E1F8" 3 s in); the analyzer had it inside the

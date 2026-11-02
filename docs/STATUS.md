@@ -453,3 +453,13 @@ launcher's achievements screen.
 ## 2026-11-01: 0.4.0-beta.3
 
 - The setup's version for what came since the last one: A bit faster renderer (unchanged shader constants skipped, only changed textures reloaded); Trap Team also gets the villain time cheat (#18)
+
+## 2026-11-02: No health loss
+
+- Extras > No health loss (`cheat_no_health_loss`, off), the setting Spyro's Adventure, Giants and Trap
+  Team have. SuperChargers has a programmer's god mode of its own: the debug byte "GodMode"
+  (0x8376C5FB, PROGRAMMER_VARS) that its damage check sub_829E7300 reads first; with it set the check zeroes
+  the damage of the players' Skylanders ("Damage reduced when in God-Mode"). src/hooks/god_mode_hook.cpp
+  reports the byte as set while the cheat is on (midasm hook at 0x829E733C); enemies lose health as before.
+- The god mode lets hits through whose description forces the damage (lava, burning); a second
+  hook makes that byte 0 for a spared victim, a third logs the first kept-off hit. Kit sweep: nat2, sky1, nat3, 150 s each: all 60 kept-off hits on the player's Skylander, the two enemies hit took theirs, HUD 450 of 450.
