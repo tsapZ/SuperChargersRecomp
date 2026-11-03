@@ -509,6 +509,7 @@ SettingsPage ExtrasPage() {
       {"cheat_no_health_loss", "No health loss", "Keine Lebenspunkte verlieren",
        "Your Skylanders don't lose health when they get hit. Enemies still do.",
        "Deine Skylander verlieren keine Lebenspunkte, wenn sie getroffen werden. Gegner schon."}));
+  page.settings.push_back(skylanders::FullGoldCheatSetting());
   return page;
 }
 
