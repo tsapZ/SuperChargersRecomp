@@ -503,6 +503,8 @@ SettingsPage ControlsPage() {
 // Extras: cheats (skylanders::CheatSetting: achievements wait while one is on).
 SettingsPage ExtrasPage() {
   SettingsPage page{"Extras", "Extras", {}};
+  // The owner's wish (2026-11-03): every cheat below can be hidden (and is switched off then).
+  page.settings.push_back(skylanders::ShowCheatsSetting());
   // As in Spyro's Adventure, Giants and Trap Team, same setting name: src/hooks/god_mode_hook.cpp
   // turns on the game's own god mode, which spares only the players' Skylanders.
   page.settings.push_back(skylanders::CheatSetting(
