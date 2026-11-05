@@ -55,8 +55,11 @@ The setup isn't signed, so Windows may say "Windows protected your PC": click **
   opens by itself, in the game's own look, with each vehicle's terrain. A real USB portal works
   too, or both at once.
 - **A shorter Skylander intro** when a figure comes in, if you like (in the settings).
-- **Your figures keep their progress** (level, gold, hats, upgrades) in files you can back up.
-- **A settings menu** in the game: graphics, frame rate, language, portal, controls.
+- **Your figures keep their progress** (level, gold, hats, upgrades) in files you can back up, and
+  each one is backed up before the game first saves over it: the portal menu puts an older version back.
+- **Quick swap:** one button puts the Skylander you played before back on the portal.
+- **A settings menu** in the game: graphics, frame rate, language, portal, controls, and *Extras*
+  (no health loss, full gold; off by default, and *Show cheats* hides the lot).
 - **Achievements.**
 - **A Discord status,** if you switch it on: the game, your Skylander and the level.
 - **HD texture packs** work too ([how](https://github.com/tsapZ/SwapForceRecomp/blob/main/docs/texture-packs.md)).
