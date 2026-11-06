@@ -68,6 +68,7 @@ set(SUPERCHARGERSRECOMP_SOURCES
     src/hooks/fxaa_scale_hook.cpp
     src/hooks/intro_skip_hook.cpp
     src/hooks/god_mode_hook.cpp
+    src/hooks/attribute_cheats_hook.cpp
     src/hooks/post_effects_hook.cpp
     src/hooks/scene_size_hook.cpp
     src/hooks/stuck_falling_hook.cpp

@@ -226,6 +226,35 @@ address = 0x829E7368
 name = "GodModeKeptOffHook"
 registers = []
 
+# Extras: always crit, elemental power, gold and XP multipliers (src/hooks/attribute_cheats_hook.cpp, as
+# in Swap Force). Each hook changes one value in a register, only while its cheat is on. 0x83025578: in the
+# damage code sub_830254D0, the fadds right after the call of sub_830188C8 (f1 = the attacker's critical hit
+# chance, added to the attack's own, which is then rolled 0..100 against; reached only for an attacker
+# with the attribute component, so not for enemies). 0x830188C0: in sub_83018808 right after mr r3,r31
+# (r3 = whether the Skylander's element is one of the area's; only the attribute bonus functions call
+# it). 0x83030B98: blr of sub_83030B28 (f1 = the gold multiplier), 0x83030B24: blr of sub_83030A50 (f1 = the XP
+# multiplier), both used by the pickup code sub_8303E788. Found 2026-11-05 in generated/; the addresses
+# come from labels and call return addresses there (debug tool func_asm.py), not from counting.
+[[midasm_hook]]
+address = 0x83025578
+name = "AlwaysCritHook"
+registers = ["f1"]
+
+[[midasm_hook]]
+address = 0x830188C0
+name = "ElementalPowerHook"
+registers = ["r3"]
+
+[[midasm_hook]]
+address = 0x83030B98
+name = "GoldMultiplierHook"
+registers = ["f1"]
+
+[[midasm_hook]]
+address = 0x83030B24
+name = "XpMultiplierHook"
+registers = ["f1"]
+
 [functions]
 # 0x8252E1F8 is called through a pointer (the first boot ended with "Call to invalid or
 # unregistered function at guest address 0x8252E1F8" 3 s in); the analyzer had it inside the
