@@ -611,3 +611,7 @@ launcher's achievements screen.
 ## 2026-11-06: 0.4.2-beta.7
 
 - The setup's version for what came since the last one: Fewer copies before narrow full-screen passes at higher resolutions (Swap Force about 1 % faster at 2x); Trap Team: always crit and elemental power everywhere as cheats
+
+## 2026-11-06: shared libraries
+
+- Settings are read again when the Windows user name has an accent or umlaut (SDK 62929a0); a real portal's traffic goes into the log (lib d48858a).
