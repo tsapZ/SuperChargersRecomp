@@ -623,3 +623,7 @@ launcher's achievements screen.
 ## 2026-11-06: shared libraries
 
 - Any movie can be skipped with a button (Start; F4 > Game), and the settings texts read better.
+
+## 2026-11-07: 0.4.2-beta.9
+
+- The setup's version for what came since the last one: Any movie can be skipped with a button (Start; F4 > Game); clearer settings texts.
