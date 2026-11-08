@@ -111,10 +111,10 @@ The settings menu shows the keyboard keys for the game itself under Controls.
 
 ## How far it is
 
-The portal tunnel ride, the first level and the ship (the game's hub) play. The driving levels
-haven't been checked much yet, and nobody has played the whole game to the end. If something
-breaks, please [tell me](https://github.com/tsapZ/SuperChargersRecomp/issues/new/choose).
-
+The portal tunnel ride, the first level and the ship (the game's hub) play, and in automated test
+runs all 14 story levels load without a crash. The driving levels haven't been played much yet, and
+nobody has played the whole game to the end. If something breaks, please [tell
+me](https://github.com/tsapZ/SuperChargersRecomp/issues/new/choose).
 What's being worked on: [docs/roadmap.md](docs/roadmap.md). Known bugs and the details:
 [docs/STATUS.md](docs/STATUS.md).
 
