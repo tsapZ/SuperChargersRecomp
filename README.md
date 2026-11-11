@@ -66,9 +66,10 @@ The setup isn't signed, so Windows may say "Windows protected your PC": click **
 
 ## What you get
 
-- **A sharper picture:** 1x, 2x or 3x the console's 720p, AMD CAS sharpening and 16x texture
-  filtering, with the presets *Performance*, *Quality* and *Best*. Bloom and motion blur can be
-  turned down.
+- **A sharper picture:** 1x, 2x or 3x the console's 720p, the 3D scene drawn at the full 720p instead
+  of the console's smaller size, sharpening (AMD CAS, or FSR 1 when the window is bigger) and 16x
+  texture filtering, with the presets *Performance*, *Quality*, *Best* and *As on the console*.
+  Bloom and motion blur can be turned down.
 - **60 FPS**, or 30 as on the console, or 144 and more. The game keeps its normal speed.
 - **Ultrawide:** a wider window shows more to the sides, and the HUD moves out to the edges.
 - **No portal needed:** when the game asks for a Skylander, a menu with every figure and vehicle
