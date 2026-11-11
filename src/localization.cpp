@@ -15,6 +15,8 @@
 
 // Defined in the SDK (xam_user.cpp); both XGetLanguage and ExGetXConfigSetting read this.
 REXCVAR_DECLARE(uint32_t, user_language);
+// Defined in the SDK (xam_locale.cpp): the console's country (XC_COUNTRY ids), which XGetLocale reads.
+REXCVAR_DECLARE(uint32_t, user_country);
 
 REXCVAR_DEFINE_STRING(language, "auto", "Game",
                       "Game text/voice language: auto (the Windows display language if it is one "
@@ -44,6 +46,8 @@ std::string SystemLanguage() {
       return "spanish";
     case LANG_ITALIAN:
       return "italian";
+    case LANG_DUTCH:
+      return "dutch";
     default:
       break;
   }
@@ -73,6 +77,17 @@ void ApplyLanguageSetting() {
   if (setting == "auto") {
     setting = SystemLanguage();
     REXLOG_INFO("Language: auto, from the Windows display language");
+  }
+  // Dutch isn't an Xbox 360 language id: the Skylanders games take Dutch from the console's country
+  // (language English, country the Netherlands), as Spyro's Adventure does (CoL #68, checked there
+  // 2026-11-09). A country set directly (--user_country) stays.
+  if (setting == "dutch") {
+    REXCVAR_SET(user_language, 1u);
+    if (!rex::cvar::HasNonDefaultValue("user_country")) {
+      REXCVAR_SET(user_country, 74u);  // XC_COUNTRY_NL
+    }
+    REXLOG_INFO("Language: dutch (English with the country {})", REXCVAR_GET(user_country));
+    return;
   }
   if (auto it = kNames.find(setting); it != kNames.end()) {
     REXCVAR_SET(user_language, it->second);
