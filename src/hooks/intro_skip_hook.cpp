@@ -31,19 +31,21 @@ REXCVAR_DEFINE_BOOL(skip_opening_movie, false, "Game",
 namespace {
 
 struct Movie {
-  uint32_t size_field;  // header +4: file size minus 8
+  uint32_t size_field;  // header +4: file size minus 8; 0: any size
   uint32_t frames;      // header +8
   bool opening;         // true: controlled by skip_opening_movie instead of skip_intro
   const char* name;
 };
 
-// Header values read from the discs' files (all "KB2i"). The logos are the same on both European
-// discs; the opening movie's size differs with its voices (Spanish / Italian or English / German).
+// Header values read from the discs' files (all "KB2i"). The logos are the same on every European
+// disc. The opening movie's size differs with its voices: 0x06F40788 on the Spanish / Italian disc,
+// 0x06F7B1E8 on the English / German one, others after Core of Light's language import (another
+// disc's movie, its second language's track copied into the one the game plays, Core of Light #77).
+// So it goes by its length alone: no other movie of the game has 3905 frames.
 constexpr Movie kMovies[] = {
     {0x0065D818, 226, false, "archives/Bumper_ATVI.bk2"},     // Activision logo
     {0x00803C9C, 270, false, "archives/Bumper_VVisions.bk2"}, // Vicarious Visions logo
-    {0x06F40788, 3905, true, "archives/FMV01.bk2"},           // new-game opening movie (Es/It disc)
-    {0x06F7B1E8, 3905, true, "archives/FMV01.bk2"},           // new-game opening movie (En/De disc)
+    {0, 3905, true, "archives/FMV01.bk2"},                    // new-game opening movie, any language
 };
 
 }  // namespace
@@ -64,7 +66,7 @@ void BinkHeaderLoaded(PPCRegister& r1) {
   const uint32_t size_field = rex::memory::load_and_swap<uint32_t>(header + 4);
   const uint32_t frames = rex::memory::load_and_swap<uint32_t>(header + 8);
   for (const Movie& movie : kMovies) {
-    if (size_field != movie.size_field || frames != movie.frames) {
+    if ((movie.size_field && size_field != movie.size_field) || frames != movie.frames) {
       continue;
     }
     if (movie.opening ? skip_opening : skip_logos) {
