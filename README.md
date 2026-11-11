@@ -116,7 +116,9 @@ The portal tunnel ride, the first level and the ship (the game's hub) play, and 
 runs all 14 story levels load without a crash. The driving levels haven't been played much yet, and
 nobody has played the whole game to the end. If something breaks, please [tell
 me](https://github.com/tsapZ/SuperChargersRecomp/issues/new/choose).
-What's being worked on: [docs/roadmap.md](docs/roadmap.md). Known bugs and the details:
+What's being worked on, for all six games and the launcher: the [roadmap
+board](https://github.com/users/tsapZ/projects/1), and [docs/roadmap.md](docs/roadmap.md) for this
+game. Questions and ideas: [Discussions](https://github.com/tsapZ/SkylandersCoreOfLight/discussions). Known bugs and the details:
 [docs/STATUS.md](docs/STATUS.md).
 
 <br>
@@ -201,6 +203,8 @@ The banner and the button at the top are drawn by Core of Light's [`tools/make_b
 
 ## Credits
 
+- **The players** who report bugs and bring ideas: many of them are in the games now. Who brought
+  what: [Made with the players](https://tsapz.github.io/#community).
 - **[GiantsRecomp](https://github.com/tsapZ/GiantsRecomp)**, **[SSARecomp](https://github.com/tsapZ/SSARecomp)**
   and **[SwapForceRecomp](https://github.com/tsapZ/SwapForceRecomp)**: this project is scaffolded
   from them; app, portal, menus and tooling come from there.
