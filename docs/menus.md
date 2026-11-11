@@ -63,7 +63,7 @@ the figures on the emulated portal, A marks one to take off, Continue takes them
   gradients (`present_dither`, on), texture filtering (`anisotropic_override`), HD textures on or off (`hd_textures`, with a pack installed), the game's own
   edge smoothing kept sharp (`fxaa_follow_resolution_scale`), extra edge smoothing
   (`swap_post_effect`), glow (`bloom_strength`), motion blur (`motion_blur_strength`),
-  fullscreen, window size.
+  fullscreen, the screen it opens on (`monitor`), window size.
 - **Frame rate:** 60 FPS and more (`present_interval`), frame rate limit (`frame_rate_limit`),
   VSync, render path, graphics card, graphics interface (D3D12 or Vulkan).
 - **Game:** language (automatic, English, German, Spanish, Italian: what the two European discs
