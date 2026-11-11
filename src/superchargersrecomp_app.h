@@ -165,6 +165,15 @@ class SuperchargersrecompApp : public rex::ReXApp {
     // pictures (2026-11-09). The SDK's switch (Xenia Canary's draw_resolution_scale_threshold,
     // D3D12 only); only when nothing set it.
     SetDefaultIfUnset("draw_resolution_scale_threshold", "640");
+    // Native surfaces: the SDK leaves a render target's pixels where the game drew them instead of
+    // copying them through its EDRAM model each time another target takes the same EDRAM, except
+    // the copies this game needs (gpu_native_surfaces_keep, in gpu_transfer_report's names).
+    // SuperChargers keeps its depth -> colour copies as Swap Force, Trap Team and Giants keep theirs
+    // (depth into colour 0); its colour -> colour, colour -> depth and float colour ones go. On the
+    // ship at 3x, uncapped: 92.5 -> 98.5 FPS (+6.5 %; at 2x the processor is the limit); a story
+    // sweep of every level looked the same as without (2026-11-10). Both only when nothing set them.
+    SetDefaultIfUnset("gpu_native_surfaces", "true");
+    SetDefaultIfUnset("gpu_native_surfaces_keep", "D0x1->C0x1,D1x1->C0x1");
     // The games whose figures this one reads (later games' figures it doesn't know).
     SetDefault("portal_menu_games", "Spyro's Adventure;Giants;Swap Force;Trap Team;SuperChargers");
     // For the launcher (Core of Light): the settings menu's pages with their values as a file,
