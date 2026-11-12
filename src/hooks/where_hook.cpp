@@ -23,6 +23,7 @@
 #include <rex/ppc/context.h>
 
 #include "dev/where.h"
+#include "portal_rex/soul_gems.h"
 
 namespace {
 
@@ -39,12 +40,22 @@ std::string LevelOfArchive(std::string_view path) {
   return m[1].str();
 }
 
+// The Soul Gem movies (skylanders-portal soul_gems.h): archives\SG_<name>.bk2, one per Skylander
+// and vehicle (SG_Spitfire, SG_HotStreak).
+std::string SoulGemOf(std::string_view path) {
+  const std::string_view name = skylanders::AfterPrefix(skylanders::FileStem(path, ".bk2"), "SG_");
+  if (name.empty()) return {};
+  const std::string skylander = skylanders::SkylanderNamed(name);
+  return skylander.empty() ? std::string(name) : skylander;
+}
+
 }  // namespace
 
 namespace superchargersrecomp {
 
 void InstallWhere() {
   skylanders::dev::WatchLevelArchives(&LevelOfArchive);
+  skylanders::WatchSoulGems(&SoulGemOf);
 }
 
 }  // namespace superchargersrecomp
