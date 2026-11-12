@@ -116,6 +116,17 @@ The portal tunnel ride, the first level and the ship (the game's hub) play, and 
 runs all 14 story levels load without a crash. The driving levels haven't been played much yet, and
 nobody has played the whole game to the end. If something breaks, please [tell
 me](https://github.com/tsapZ/SuperChargersRecomp/issues/new/choose).
+
+**What's tested** (as of 2026-11-12):
+
+| | |
+|---|---|
+| Every story level loads | all 14, by script |
+| Played by hand | the first level and the ship; the driving levels not much yet |
+| Real USB portal | not confirmed yet: tell me if yours works |
+| Two players | not tried yet |
+| Graphics | D3D12 and Vulkan, by script |
+
 What's being worked on, for all six games and the launcher: the [roadmap
 board](https://github.com/users/tsapZ/projects/1), and [docs/roadmap.md](docs/roadmap.md) for this
 game. Questions and ideas: [Discussions](https://github.com/tsapZ/SkylandersCoreOfLight/discussions). Known bugs and the details:
