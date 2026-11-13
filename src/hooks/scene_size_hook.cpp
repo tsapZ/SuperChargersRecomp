@@ -56,6 +56,8 @@ constexpr int32_t kGameHeight = 620;
 constexpr int32_t kScreenWidth = 1280;
 constexpr int32_t kScreenHeight = 720;
 constexpr int32_t kScreenSizeStep = 16;
+// An EDRAM tile is 80 pixels wide (at 1x and 2x MSAA; 40 samples wide at 4x, also whole at 80).
+constexpr int32_t kTileWidth = 80;
 
 struct Size {
   int32_t width = 0, height = 0;
@@ -68,8 +70,16 @@ Size ConfiguredSize() {
   if (!text.empty() && std::sscanf(text.c_str(), "%ux%u", &w, &h) == 2 && w >= 320 && h >= 240 &&
       w <= 7680 && h <= 4320) {
     size = {int32_t(w), int32_t(h)};
+    // Whole EDRAM tiles across (80 pixels): the game copies some targets in whole tiles only, so a
+    // part tile at the right edge stayed stale, a bar at the right of Trap Team's portal prompt at
+    // 1264x704, gone at 1280x704 and 1200x704 (2026-11-13; the console's 1040 is 13 whole tiles).
+    if (const int32_t whole = size.width / kTileWidth * kTileWidth; whole != size.width && whole >= 320) {
+      REXLOG_INFO("Scene size: {} wide is not whole EDRAM tiles of {}; drawing {} wide", size.width,
+                  kTileWidth, whole);
+      size.width = whole;
+    }
     if (size.width == kScreenWidth && size.height == kScreenHeight) {
-      size = {kScreenWidth - kScreenSizeStep, kScreenHeight - kScreenSizeStep};
+      size.height = kScreenHeight - kScreenSizeStep;
       REXLOG_INFO("Scene size: {}x{} is the screen's size, which crashed Swap Force while "
                   "loading; drawing {}x{} instead",
                   kScreenWidth, kScreenHeight, size.width, size.height);
