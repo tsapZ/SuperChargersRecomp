@@ -682,3 +682,8 @@ The README's "What's tested" table (bundle/next4). Story sweep with the develope
 levels loaded, none failed, pictures alike to the night before. Smoke (the save route and the menus) on D3D12 and on
 Vulkan with the SDK's native-surfaces fix (Core of Light #76): both ok. The other rows come from the entries
 above and docs/roadmap.md.
+
+## 2026-11-15: European French / Dutch disc and Dutch language fix
+
+- **European `(Fr,Nl)` pressing (`default.xex` `0.0.0.4`):** pinned its SHA-256 (`c6b1d7a3...`) in `docs/game/default.xex.sha256` and its code section pin (`82450000:d379ae25...`) in `docs/game/default.xex.code`. Codegen (`639` files) confirmed all 26 `[[midasm_hook]]` sites, `setjmp`/`longjmp`, the `[functions]` entries and `where_hook.cpp` (`sub_82F949B8`) sit at identical addresses with identical PPC instructions.
+- **Dutch (`--language=dutch`):** `src/localization.cpp` previously set `user_language = 1` + `user_country = 74`, which came from Spyro's Adventure and caused SuperChargers to fall back to the disc's first language (French on `(Fr,Nl)`). SuperChargers' `sub_83567248` / `sub_824D7E10` reads `ExGetXConfigSetting(3, 9)` (`user_language`) up to ID `17` and maps `XLanguage::kDutch` (`16`) to VV language `5` (`nl`). Fixed `src/localization.cpp` to set `user_language = 16` (alongside `user_country = 74` when unset), added `Français` to F4 > Language (`src/settings_pages.cpp`), and added `Francais` / `Nederlands` to `installer/SuperChargersRecomp.iss`. Verified both French (`"Appuie sur start"`) and Dutch (`"DRUK op start"`, `"AVONTURIER"`) on the `(Fr,Nl)` pressing.

@@ -8,6 +8,7 @@ own check at start, the installer's check tool and the Core of Light launcher al
 |---|---|---|---|
 | Skylanders - SuperChargers (Europe) (En,De) | English, German | `02ff6672d460c9aaa54e69d584af67a7138c6c93cde5e04b0da4284207be7c61` | the disc to use: German and English text and voices are the game's own |
 | Skylanders - SuperChargers (Europe) (Es,It) | Spanish, Italian | `02846647633e93c627e74b92d3ad63a90e1504546958fc8d81e28ac65de1f9bc` | the disc the port was first made with; German or English from the En/De disc with `tools/german_text.py` |
+| Skylanders - SuperChargers (Europe) (Fr,Nl) | French, Dutch | `c6b1d7a32195ace94f31a49d750b06b01c817ed70ce3a41f3d977d3d80241f10` | XEX version `0.0.0.4`, `default.xex.code` pin `82450000:d379ae251fb9336a3ea4aadd46bfb6f0a51d5bef2cbc26b704e3c43c95234f7f`; French and Dutch text and voices (Dutch via `XLanguage::kDutch` / `user_language = 16`) |
 
 ## Why both run
 

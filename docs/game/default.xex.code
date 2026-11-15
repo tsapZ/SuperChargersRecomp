@@ -4,3 +4,5 @@
 # another media ID) runs the same code, and the setup, the game and the launcher take it like a disc
 # listed in default.xex.sha256.
 82450000:3140330d024070a570409f8ebb651593ffdf5e038495721f2ca3538dbecd4671
+# European French / Dutch pressing (version 0.0.0.4, same changelist 2785777 and code/hook map):
+82450000:d379ae251fb9336a3ea4aadd46bfb6f0a51d5bef2cbc26b704e3c43c95234f7f

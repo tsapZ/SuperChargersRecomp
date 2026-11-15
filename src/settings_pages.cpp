@@ -356,18 +356,20 @@ SettingsPage GamePage() {
                    "Text and voices.\n"
                    "Automatic: the language of Windows, if the game has it.\n"
                    "\n"
-                   "The European discs have English and German, or Spanish and Italian.",
+                   "The European discs have English and German, Spanish and Italian, or French "
+                   "and Dutch.",
                    "Texte und Stimmen.\n"
                    "Automatisch: die Sprache von Windows, wenn das Spiel sie hat.\n"
                    "\n"
-                   "Die europ\xC3\xA4ischen Discs haben Englisch und Deutsch, oder Spanisch und "
-                   "Italienisch.",
+                   "Die europ\xC3\xA4ischen Discs haben Englisch und Deutsch, Spanisch und "
+                   "Italienisch oder Franz\xC3\xB6sisch und Niederl\xC3\xA4ndisch.",
                    {{"auto", "Automatic", "Automatisch"},
                     {"english", "English", "English"},
                     {"german", "Deutsch", "Deutsch"},
+                    {"french", "Fran\xC3\xA7" "ais", "Fran\xC3\xA7" "ais"},
                     {"spanish", "Espa\xC3\xB1ol", "Espa\xC3\xB1ol"},
                     {"italian", "Italiano", "Italiano"},
-                    // Dutch through the country, not a language id (localization.cpp, CoL #68).
+                    // Dutch through XLanguage::kDutch (16) and the country (localization.cpp).
                     {"dutch", "Nederlands", "Nederlands"}}};
   language.restart = true;
   page.settings.push_back(language);

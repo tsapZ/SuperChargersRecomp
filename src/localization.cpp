@@ -21,8 +21,8 @@ REXCVAR_DECLARE(uint32_t, user_country);
 REXCVAR_DEFINE_STRING(language, "auto", "Game",
                       "Game text/voice language: auto (the Windows display language if it is one "
                       "of the following, else English), english, french, german, spanish, "
-                      "italian. A raw Xbox 360 language ID (a number) also works, for languages "
-                      "the disc supports that aren't confirmed here yet.");
+                      "italian, dutch. A raw Xbox 360 language ID (a number) also works, for "
+                      "languages the disc supports that aren't confirmed here yet.");
 
 namespace superchargersrecomp {
 
@@ -78,15 +78,16 @@ void ApplyLanguageSetting() {
     setting = SystemLanguage();
     REXLOG_INFO("Language: auto, from the Windows display language");
   }
-  // Dutch isn't an Xbox 360 language id: the Skylanders games take Dutch from the console's country
-  // (language English, country the Netherlands), as Spyro's Adventure does (CoL #68, checked there
-  // 2026-11-09). A country set directly (--user_country) stays.
+  // Vicarious Visions reads Xbox 360 XLanguage::kDutch (16) via ExGetXConfigSetting(3, 9) in
+  // sub_83567248 -> sub_824D7E10 (VV language 5), unlike Toys for Bob's Spyro's Adventure which
+  // took Dutch from user_country alone. Also set user_country to XC_COUNTRY_NL (74) when unset so
+  // XamGetLocaleEx reports NL. A country set directly (--user_country) stays.
   if (setting == "dutch") {
-    REXCVAR_SET(user_language, 1u);
+    REXCVAR_SET(user_language, 16u);
     if (!rex::cvar::HasNonDefaultValue("user_country")) {
       REXCVAR_SET(user_country, 74u);  // XC_COUNTRY_NL
     }
-    REXLOG_INFO("Language: dutch (English with the country {})", REXCVAR_GET(user_country));
+    REXLOG_INFO("Language: dutch (language 16, country {})", REXCVAR_GET(user_country));
     return;
   }
   if (auto it = kNames.find(setting); it != kNames.end()) {
