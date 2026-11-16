@@ -86,7 +86,7 @@ The setup isn't signed, so Windows may say "Windows protected your PC": click **
 - **Achievements.**
 - **A Discord status:** the game, your Skylander and the level, while the Discord app runs. F4 > Game turns it off.
 - **HD texture packs** work too ([how](https://github.com/tsapZ/SwapForceRecomp/blob/main/docs/texture-packs.md)).
-- **Languages:** English and German from the En/De disc; Spanish and Italian from the Es/It one.
+- **Languages:** English and German from the En/De disc; Spanish and Italian from the Es/It one; French and Dutch from the Fr/Nl one.
 
 <img src=".github/images/settings.png" alt="The game's settings in Core of Light">
 
@@ -151,13 +151,14 @@ new PC.
 
 ## Which disc
 
-Two European Xbox 360 discs work, the same build with other languages
+Three European Xbox 360 discs work, the same build with other languages
 ([docs/game/discs.md](docs/game/discs.md)):
 
 | Disc | Languages |
 |---|---|
 | Skylanders - SuperChargers (Europe) **(En,De)** | English and German, text and voices: the one to use |
 | Skylanders - SuperChargers (Europe) (Es,It) | Spanish and Italian; English or German can be added (below) |
+| Skylanders - SuperChargers (Europe) (Fr,Nl) | French and Dutch, text and voices |
 
 Any other pressing with the same code works as well: the check also compares the code part of the file ([docs/game/default.xex.code](docs/game/default.xex.code)). Other regions (USA and others) don't work yet: their executable is a different one.
 

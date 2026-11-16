@@ -243,7 +243,7 @@ begin
     ErrorMsg := 'Could not read ' + CandidateXex + ' to check its version.'
   else if ResultCode = 2 then begin
     ErrorMsg := 'This is not a supported Skylanders: SuperChargers version (Xbox 360): ' +
-      'the European English / German or Spanish / Italian disc. ' +
+      'the European English / German, Spanish / Italian or French / Dutch disc. ' +
       'The installer will not continue with an unsupported copy of the game.';
     if LoadStringFromFile(CheckOutput, CheckText) then
       ErrorMsg := ErrorMsg + #13#10#13#10 + String(CheckText) + #13#10 +
@@ -258,8 +258,10 @@ function LanguageTomlValue: AnsiString;
 begin
   case LanguageCombo.ItemIndex of
     1: Result := 'german';
-    2: Result := 'spanish';
-    3: Result := 'italian';
+    2: Result := 'french';
+    3: Result := 'spanish';
+    4: Result := 'italian';
+    5: Result := 'dutch';
   else
     Result := 'english';
   end;
@@ -472,13 +474,17 @@ begin
   LanguageCombo.Style := csDropDownList;
   LanguageCombo.Items.Add('English');
   LanguageCombo.Items.Add('Deutsch (German)');
+  LanguageCombo.Items.Add('Francais (French)');
   LanguageCombo.Items.Add('Espanol (Spanish)');
   LanguageCombo.Items.Add('Italiano (Italian)');
+  LanguageCombo.Items.Add('Nederlands (Dutch)');
   // Preselects the Windows display language (primary language id).
   case GetUILanguage and $3FF of
     $07: LanguageCombo.ItemIndex := 1;
-    $0A: LanguageCombo.ItemIndex := 2;
-    $10: LanguageCombo.ItemIndex := 3;
+    $0C: LanguageCombo.ItemIndex := 2;
+    $0A: LanguageCombo.ItemIndex := 3;
+    $10: LanguageCombo.ItemIndex := 4;
+    $13: LanguageCombo.ItemIndex := 5;
   else
     LanguageCombo.ItemIndex := 0;
   end;
