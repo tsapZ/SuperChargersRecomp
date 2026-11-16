@@ -1,4 +1,5 @@
 #include "localization.h"
+#include "portal/system_locale.h"
 
 #include <algorithm>
 #include <cctype>
@@ -51,8 +52,15 @@ std::string SystemLanguage() {
     default:
       break;
   }
-#endif
   return "english";
+#else
+  const std::string lang = skylanders::PosixSystemLanguage();
+  if (lang == "german" || lang == "french" || lang == "spanish" || lang == "italian" ||
+      lang == "dutch") {
+    return lang;
+  }
+  return "english";
+#endif
 }
 
 }  // namespace
