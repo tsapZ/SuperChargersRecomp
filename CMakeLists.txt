@@ -71,6 +71,7 @@ set(SUPERCHARGERSRECOMP_SOURCES
     src/hooks/attribute_cheats_hook.cpp
     src/hooks/post_effects_hook.cpp
     src/hooks/scene_size_hook.cpp
+    src/hooks/skip_talks_hook.cpp
     src/hooks/stuck_falling_hook.cpp
     src/hooks/ultrawide_hook.cpp
     src/hooks/where_hook.cpp
