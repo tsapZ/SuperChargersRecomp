@@ -696,3 +696,7 @@ above and docs/roadmap.md.
 ## 2026-11-18: 0.6.0-beta.3
 
 - The setup's version for what came since the last one: Skip talks also ends the talks in text boxes, with B.
+
+## 2026-11-19: shared libraries
+
+- The menus' stone frame and nicer settings rows; controller in the background with real pads.
