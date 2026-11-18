@@ -32,7 +32,8 @@
 #include "portal_rex/portal_menu_input.h"
 
 REXCVAR_DEFINE_BOOL(skip_talks, false, "Game",
-                    "B or Y skips every cutscene, also those the game only lets you skip on a replay");
+                    "B or Y skips every cutscene, also those the game only lets you skip on a replay; B ends "
+                    "every talk");
 
 REX_EXTERN(__imp__sub_8298E780);  // the auto skip switch (original)
 REX_EXTERN(__imp__sub_829E2CD8);  // a talk's "may it be skipped" check (original)

@@ -383,13 +383,15 @@ SettingsPage GamePage() {
                            "Er\xC3\xB6" "ffnungsfilm \xC3\xBC" "berspringen",
                            "Skips the long movie at the start of a new game.",
                            "\xC3\x9C" "berspringt den langen Film beim Start eines neuen Spiels."});
-  // hooks/skip_talks_hook.cpp: the auto skip switch says yes right after B or Y.
+  // hooks/skip_talks_hook.cpp: the auto skip switch says yes right after B or Y; in a talk B taps Y.
   page.settings.push_back({"skip_talks", "Skip talks", "Gespr\xC3\xA4" "che \xC3\xBC" "berspringen",
                            "B or Y skips every cutscene in the levels, also the ones the game only lets "
-                           "you skip when you play a level again. Nothing is skipped without a press.",
+                           "you skip when you play a level again, and B ends every talk. Nothing is skipped "
+                           "without a press.",
                            "B oder Y \xC3\xBC" "berspringt jede Zwischensequenz in den Leveln, auch die, die "
                            "das Spiel sonst erst beim erneuten Spielen eines Levels \xC3\xBC" "berspringen "
-                           "l\xC3\xA4" "sst. Ohne Tastendruck wird nichts \xC3\xBC" "bersprungen."});
+                           "l\xC3\xA4" "sst, und B beendet jedes Gespr\xC3\xA4" "ch. Ohne Tastendruck "
+                           "wird nichts \xC3\xBC" "bersprungen."});
   page.settings.push_back(
       {"figure_intro_seconds", "Skylander intro", "Skylander-Vorstellung",
        "When a Skylander comes onto the portal, the game shows it with its name before you can "
