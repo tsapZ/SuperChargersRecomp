@@ -47,7 +47,9 @@ using Clock = std::chrono::steady_clock;
 std::mutex g_mutex;
 Clock::time_point g_last_ask{};
 Clock::time_point g_skip_until{};
-Clock::time_point g_last_b{};  // the last new B press the auto skip switch saw
+// The talk's call of the skip check. Its other callers (sub_82E7C950, sub_829E3B18) take a yes as "skip the scene"
+// without a press (code review 2026-11-18), so only this one is answered.
+constexpr uint32_t kFromTalk = 0x82EF1468;
 
 }  // namespace
 
@@ -60,7 +62,6 @@ REX_HOOK_RAW(sub_8298E780) {
   const bool new_run = now - g_last_ask > std::chrono::milliseconds(250);
   g_last_ask = now;
   const uint16_t presses = skylanders::menu_input::TakeNewSkipPresses();
-  if (presses & 0x2000) g_last_b = now;
   if (!new_run && (presses & kSkipButtons) && !skylanders::menu_input::MenuOpen()) {
     g_skip_until = now + std::chrono::milliseconds(100);  // the update asks every frame
     REXLOG_INFO("Skip talks: {} skips the scene", (presses & 0x2000) ? "B" : "Y");
@@ -69,25 +70,25 @@ REX_HOOK_RAW(sub_8298E780) {
 }
 
 REX_HOOK_RAW(sub_829E2CD8) {
+  const bool from_talk = uint32_t(ctx.lr) == kFromTalk;
   __imp__sub_829E2CD8(ctx, base);
-  if (REXCVAR_GET(skip_talks)) ctx.r3.u64 = 1;
+  if (from_talk && REXCVAR_GET(skip_talks)) ctx.r3.u64 = 1;
 }
 
 // A press in a talk (about 200 ms after it, also while "press Y to skip" shows): after a new B, Y is tapped.
 REX_HOOK_RAW(sub_82EF12D0) {
   __imp__sub_82EF12D0(ctx, base);
   if (!REXCVAR_GET(skip_talks)) return;
-  const Clock::time_point now = Clock::now();
   bool tap = false;
   {
     std::lock_guard lock(g_mutex);
-    // The scene hook isn't asked during a talk (2026-11-18): the handler takes the new presses itself.
-    const uint16_t presses = skylanders::menu_input::TakeNewSkipPresses();
-    tap = (presses & 0x2000) || now - g_last_b < std::chrono::milliseconds(400);
-    if (tap) g_last_b = {};
+    // The scene hook isn't asked during a talk (2026-11-18): the handler takes the new presses itself, and only
+    // its own (a B from before the talk, an attack, doesn't count).
+    tap = (skylanders::menu_input::TakeNewSkipPresses() & 0x2000) != 0;
   }
   if (tap && !skylanders::menu_input::MenuOpen()) {
-    skylanders::menu_input::TapButton(0, 0x8000);  // Y: the game's own talk skip
+    // Y for every player: the presses don't say whose B it was, and a talk is everyone's.
+    for (uint32_t user = 0; user < 4; ++user) skylanders::menu_input::TapButton(user, 0x8000);
     REXLOG_INFO("Skip talks: B skips the talk");
   }
 }
