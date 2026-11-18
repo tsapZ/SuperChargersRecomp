@@ -692,3 +692,7 @@ above and docs/roadmap.md.
 
 - Rebuilt and audited `(Fr,Nl)` codegen (`generated/default/`, 639 files): verified all 28 `[functions]` entries and 26 `[[midasm_hook]]` sites in `config/default.toml`, `setjmp`/`longjmp`, all hook/global targets in `src/hooks/*`, `src/game/magic_moment_watch.cpp`, `src/hooks/where_hook.cpp`, and `src/localization.cpp`, plus the `Bumper_ATVI.bk2`, `Bumper_VVisions.bk2`, and `FMV01.bk2` headers (`226`/`270`/`3905` frames).
 - Scripted headless Vulkan runs (`--portal_mode=software`) in French and Dutch verified: startup verification, bumper/`FMV01` skip (`Y` and `--skip_opening_movie=true`), the full `Intro` Rift tunnel (`Hot Streak` + `Spitfire` / `Chop Chop` + `Shark Tank`), the Flynn/Cali/Hugo transition, and `Intro1` (`Where: intro1`, "Skylands Enchaînés — Chapitre 1" / "Skylands in Ketenen — Hoofdstuk 1") with movement, combat, coins, jumping, save/figure backups, `MagicMomentWatch`, `FigureIntro`, `UltrawideFOV`, FXAA, cheats, Achievements, Discord presence, F4/F6/F7 menus, and 60 guest FPS (`0` frames over 50 ms). Later levels (`Academy`, `Nat1`+) were not played through here.
+
+## 2026-11-18: 0.6.0-beta.3
+
+- The setup's version for what came since the last one: Skip talks also ends the talks in text boxes, with B.
