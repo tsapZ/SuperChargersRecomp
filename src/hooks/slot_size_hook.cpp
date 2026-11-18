@@ -19,12 +19,19 @@
 #include <rex/memory/utils.h>
 #include <rex/ppc/context.h>
 
+// At most 16 MB a slot (code review 2026-11-18: a typo like 0x2798000, 40 MB, would make the game's allocations fail at
+// load); read once at the start. Hex works in the settings file (TOML numbers); on the command line give it in decimal
+// (2594816 for 0x279800).
 REXCVAR_DEFINE_INT32(hero_data_slot_size, 0, "Mods",
                      "Bytes for a hero's data slot, for mods with bigger characters (Bowser and Donkey Kong from "
-                     "the Wii U game: 0x279800); 0 = the game's own 0x179800");
+                     "the Wii U game: 0x279800); 0 = the game's own 0x179800")
+    .range(0, 0x1000000)
+    .lifecycle(rex::cvar::Lifecycle::kRequiresRestart);
 REXCVAR_DEFINE_INT32(vehicle_slot_size, 0, "Mods",
                      "Bytes for a vehicle's slot, for mods with bigger vehicles (the Clown Cruiser and the Barrel "
-                     "Blaster: 0x2C2000); 0 = the game's own 0x1C2000");
+                     "Blaster: 0x2C2000); 0 = the game's own 0x1C2000")
+    .range(0, 0x1000000)
+    .lifecycle(rex::cvar::Lifecycle::kRequiresRestart);
 
 namespace {
 
