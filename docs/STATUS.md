@@ -696,3 +696,12 @@ above and docs/roadmap.md.
 ## 2026-11-18: 0.6.0-beta.3
 
 - The setup's version for what came since the last one: Skip talks also ends the talks in text boxes, with B.
+
+## 2026-11-19: shared libraries
+
+- The menus' stone frame and nicer settings rows; controller in the background with real pads.
+
+## 2026-11-19: shared libraries
+
+- On Vulkan at a resolution scale above 1 the depth-of-field no longer reads a pixel off (a haze round the characters).
+- On Vulkan, depth a shader writes itself into a float24 depth target is no longer twice too large (Imaginators' hub light cone was missing).

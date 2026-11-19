@@ -33,3 +33,7 @@ skip_intro = false                         # true: skip the Activision and Vicar
 
 ["Runtime"]
 # user_data_root: on the command line only (--user_data_root=...); default Documents\Skylanders\SuperChargers
+
+["Mods"]
+# hero_data_slot_size = 0x279800          # bigger hero data slots for mods with bigger characters (0 = the game's 0x179800)
+# vehicle_slot_size = 0x2C2000            # bigger vehicle slots for mods with bigger vehicles (0 = the game's 0x1C2000)
