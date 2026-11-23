@@ -22,8 +22,9 @@ REXCVAR_DECLARE(uint32_t, user_country);
 REXCVAR_DEFINE_STRING(language, "auto", "Game",
                       "Game text/voice language: auto (the Windows display language if it is one "
                       "of the following, else English), english, french, german, spanish, "
-                      "italian, dutch. A raw Xbox 360 language ID (a number) also works, for "
-                      "languages the disc supports that aren't confirmed here yet.");
+                      "italian, dutch, swedish, norwegian, danish, finnish (each disc has two or "
+                      "four of them; one it lacks gives the disc's first). A raw Xbox 360 language "
+                      "ID (a number) also works, for experiments.");
 
 namespace superchargersrecomp {
 
@@ -49,6 +50,14 @@ std::string SystemLanguage() {
       return "italian";
     case LANG_DUTCH:
       return "dutch";
+    case LANG_SWEDISH:
+      return "swedish";
+    case LANG_NORWEGIAN:
+      return "norwegian";
+    case LANG_DANISH:
+      return "danish";
+    case LANG_FINNISH:
+      return "finnish";
     default:
       break;
   }
@@ -56,7 +65,8 @@ std::string SystemLanguage() {
 #else
   const std::string lang = skylanders::PosixSystemLanguage();
   if (lang == "german" || lang == "french" || lang == "spanish" || lang == "italian" ||
-      lang == "dutch") {
+      lang == "dutch" || lang == "swedish" || lang == "norwegian" || lang == "danish" ||
+      lang == "finnish") {
     return lang;
   }
   return "english";
@@ -75,10 +85,20 @@ void ApplyLanguageSetting() {
     return;
   }
 
-  // Xbox 360 XLanguage IDs (include/rex/system/xcontent.h): the five of the other Skylanders
-  // ports. Which of them this disc has is still to be checked (docs/game/superchargers.md).
+  // Xbox 360 XLanguage IDs (include/rex/system/xcontent.h). The game turns them into its own ids in
+  // sub_824D7E10 (English 1 -> 6, Swedish 13 -> 23, Norwegian 15 -> 17, Dutch 16 -> 5, ...) and, in
+  // sub_828D2908, uses the disc's first language when the one asked for isn't on the disc (English on
+  // the Es/It disc starts in its own language, 2026-11-22).
   static const std::unordered_map<std::string, uint32_t> kNames = {
-      {"english", 1}, {"german", 3}, {"french", 4}, {"spanish", 5}, {"italian", 6},
+      {"english", 1}, {"german", 3},    {"french", 4},     {"spanish", 5},
+      {"italian", 6}, {"swedish", 13}, {"norwegian", 15},
+  };
+  // The country to go with a language, when not set directly (Core of Light #118): Danish and Finnish have no
+  // Xbox 360 language; sub_828D2908 takes them from the locale DK / FI (the SDK's xam_locale.cpp: country
+  // 25 -> DK, 32 -> FI), with English as the language. Swedish and Norwegian get their country as a console
+  // there would.
+  static const std::unordered_map<std::string, uint32_t> kCountries = {
+      {"danish", 25u}, {"finnish", 32u}, {"swedish", 90u}, {"norwegian", 75u},
   };
 
   std::string setting = Lower(REXCVAR_GET(language));
@@ -98,9 +118,18 @@ void ApplyLanguageSetting() {
     REXLOG_INFO("Language: dutch (language 16, country {})", REXCVAR_GET(user_country));
     return;
   }
+  if (auto c = kCountries.find(setting); c != kCountries.end() &&
+                                         !rex::cvar::HasNonDefaultValue("user_country")) {
+    REXCVAR_SET(user_country, c->second);
+  }
+  if (setting == "danish" || setting == "finnish") {
+    REXCVAR_SET(user_language, 1u);
+    REXLOG_INFO("Language: {} (English with the country {})", setting, REXCVAR_GET(user_country));
+    return;
+  }
   if (auto it = kNames.find(setting); it != kNames.end()) {
     REXCVAR_SET(user_language, it->second);
-    REXLOG_INFO("Language: {} (id {})", setting, it->second);
+    REXLOG_INFO("Language: {} (id {}, country {})", setting, it->second, REXCVAR_GET(user_country));
     return;
   }
 

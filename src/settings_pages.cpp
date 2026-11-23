@@ -356,13 +356,16 @@ SettingsPage GamePage() {
                    "Text and voices.\n"
                    "Automatic: the language of Windows, if the game has it.\n"
                    "\n"
-                   "The European discs have English and German, Spanish and Italian, or French "
-                   "and Dutch.",
+                   "The European discs have English and German, Spanish and Italian, French and "
+                   "Dutch, or Swedish, Norwegian, Danish and Finnish; one the disc doesn't have "
+                   "gives the disc's first language.",
                    "Texte und Stimmen.\n"
                    "Automatisch: die Sprache von Windows, wenn das Spiel sie hat.\n"
                    "\n"
                    "Die europ\xC3\xA4ischen Discs haben Englisch und Deutsch, Spanisch und "
-                   "Italienisch oder Franz\xC3\xB6sisch und Niederl\xC3\xA4ndisch.",
+                   "Italienisch, Franz\xC3\xB6sisch und Niederl\xC3\xA4ndisch oder "
+                   "Schwedisch, Norwegisch, D\xC3\xA4nisch und Finnisch; eine, die die Disc "
+                   "nicht hat, ergibt die erste Sprache der Disc.",
                    {{"auto", "Automatic", "Automatisch"},
                     {"english", "English", "English"},
                     {"german", "Deutsch", "Deutsch"},
@@ -370,7 +373,12 @@ SettingsPage GamePage() {
                     {"spanish", "Espa\xC3\xB1ol", "Espa\xC3\xB1ol"},
                     {"italian", "Italiano", "Italiano"},
                     // Dutch through XLanguage::kDutch (16) and the country (localization.cpp).
-                    {"dutch", "Nederlands", "Nederlands"}}};
+                    {"dutch", "Nederlands", "Nederlands"},
+                    // the Scandinavian disc (localization.cpp, Core of Light #118)
+                    {"swedish", "Svenska", "Svenska"},
+                    {"norwegian", "Norsk", "Norsk"},
+                    {"danish", "Dansk", "Dansk"},
+                    {"finnish", "Suomi", "Suomi"}}};
   language.restart = true;
   page.settings.push_back(language);
   Setting intro{"skip_intro", "Skip logo movies", "Logo-Videos \xC3\xBC" "berspringen",
