@@ -98,9 +98,18 @@ The setup above is the Windows one. On Linux the same checkout builds natively:
   On ARM64, `just` uses `linux-arm64-release` and names the tarball
   `dist/SuperChargersRecomp-linux-arm64.tar.gz`; on SteamOS, enable developer mode first.
 
-Unpack the tarball and run `./linux-setup.sh <your ISO>` once: it copies the disc into `rom/` and
-writes `superchargersrecomp.toml`. `./superchargersrecompiled` starts the game, `--portal_mode=software` runs it
-without a portal.
+Unpacking the tarball creates one release directory (`superchargersrecomp-linux-amd64-release/`, or
+`superchargersrecomp-linux-arm64-release/` on ARM64). Enter it and run `./linux-setup.sh` once with
+your ISO or an already extracted disc folder:
+
+```
+cd superchargersrecomp-linux-amd64-release
+./linux-setup.sh /path/to/SuperChargers.iso     # needs xdvdfs or extract-xiso installed
+./linux-setup.sh /path/to/extracted-disc        # no extractor needed
+```
+
+It copies the disc into `rom/` and writes `superchargersrecomp.toml`. `./superchargersrecompiled`
+starts the game, `--portal_mode=software` runs it without a portal.
 
 ## Everyday commands
 
