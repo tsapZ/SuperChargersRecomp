@@ -115,5 +115,10 @@ skylanders_game_icon(superchargersrecompiled "${CMAKE_CURRENT_SOURCE_DIR}/rom")
 # The disc check (skylanders-portal src/xex, cmake/game_xex.cmake): the supported discs' SHA-256
 # from docs/game/default.xex.sha256 in the game and in superchargersrecomp_xexcheck, the installer's check,
 # with their tests.
+# Two builds of the game (docs/game/discs.md): the downloads carry the exe recompiled from the En/De disc's code
+# (also the Es/It disc's) and, next to it, superchargersrecompiled_fr_nl_nordic from the Scandinavian disc's (also the
+# French / Dutch disc's). Each starts the other for a disc with the other code; both builds pass the same list.
 skylanders_game_xex(TARGET superchargersrecompiled PREFIX superchargersrecomp TITLE "Skylanders: SuperChargers"
-                    HASH_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/game/default.xex.sha256")
+                    HASH_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/game/default.xex.sha256"
+                    SIBLINGS "superchargersrecompiled@82450000:3140330d024070a570409f8ebb651593ffdf5e038495721f2ca3538dbecd4671"
+                             "superchargersrecompiled_fr_nl_nordic@82450000:d379ae251fb9336a3ea4aadd46bfb6f0a51d5bef2cbc26b704e3c43c95234f7f")

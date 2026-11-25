@@ -9,6 +9,19 @@ own check at start, the installer's check tool and the Core of Light launcher al
 | Skylanders - SuperChargers (Europe) (En,De) | English, German | `02ff6672d460c9aaa54e69d584af67a7138c6c93cde5e04b0da4284207be7c61` | the disc to use: German and English text and voices are the game's own |
 | Skylanders - SuperChargers (Europe) (Es,It) | Spanish, Italian | `02846647633e93c627e74b92d3ad63a90e1504546958fc8d81e28ac65de1f9bc` | the disc the port was first made with; German or English from the En/De disc with `tools/german_text.py` |
 | Skylanders - SuperChargers (Europe) (Fr,Nl) | French, Dutch | `c6b1d7a32195ace94f31a49d750b06b01c817ed70ce3a41f3d977d3d80241f10` | XEX version `0.0.0.4`, `default.xex.code` pin `82450000:d379ae251fb9336a3ea4aadd46bfb6f0a51d5bef2cbc26b704e3c43c95234f7f`; French and Dutch text and voices (Dutch via `XLanguage::kDutch` / `user_language = 16`) |
+| Skylanders - SuperChargers (Scandinavia) (Sv,No,Da,Fi) | Swedish, Norwegian, Danish, Finnish | `71063aafa3f0ce3270d92fdf7e38a543a3056a385430b87ba672409e3e5a5c58` | XEX version `0.0.0.3`, the same code pin as the Fr/Nl disc; Swedish, Norwegian, Danish and Finnish text and voices (Core of Light #118) |
+
+## Two exes for two builds
+
+The En/De and Es/It discs are one build of the game, the Fr/Nl and Scandinavian discs another (below). The
+downloads carry an exe for each: `superchargersrecompiled` recompiled from the En/De code, and
+`superchargersrecompiled_fr_nl_nordic` recompiled from the Scandinavian disc's. Each lists the other in its disc check
+(`SIBLINGS` in `CMakeLists.txt`, skylanders-portal `src/xex/sibling_build.h`): started with a disc of the other build,
+it starts that exe with the same arguments and ends with its exit code, so Core of Light, a shortcut or a script sees
+one game. The setup's check tool says OK for both (exit code 5 for the other build's disc).
+
+Recompiled from the Scandinavian disc (2026-11-26): the codegen wrote 639 files, as for the Fr/Nl disc; a scripted
+run in Swedish with a save copy reached the ship at 60 FPS, Hugo's lines in Swedish.
 
 ## The French / Dutch disc is another build
 

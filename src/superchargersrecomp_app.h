@@ -48,6 +48,7 @@
 #include "portal_rex/title_music.h"
 #include "settings_pages.h"
 #include "portal_rex/portal_rex.h"
+#include "xex/sibling_build.h"
 #include "xex/xex_verify.h"
 
 // Manual override for the ImGui overlay's size, since there's no reliable way to auto-detect "the
@@ -354,6 +355,15 @@ class SuperchargersrecompApp : public rex::ReXApp {
     if (problem.empty()) {
       REXLOG_INFO("default.xex verified");
       return;
+    }
+    // The disc is the game's other build (the French / Dutch or Scandinavian one, or the En/De one for the exe made
+    // from those), whose own exe ships next to this one: it runs instead, with the same arguments, and this process
+    // ends with its exit code. Its own log follows this one (the next number).
+    if (result.other_build && !result.sibling_exe.empty()) {
+      REXLOG_INFO("default.xex is the game's other build ({}): starting {}", result.header, result.sibling_exe);
+      rex::FlushLogging();
+      if (const auto code = skylanders::xex::RunSiblingBuild(result.sibling_exe)) std::_Exit(*code);
+      REXLOG_ERROR("Could not start {}", result.sibling_exe);
     }
     Fatal(problem);
   }
