@@ -22,6 +22,9 @@ WizardStyle=modern
 
 [Files]
 Source: "staging\superchargersrecompiled.exe"; DestDir: "{app}"; Flags: ignoreversion
+; The exe recompiled from the French / Dutch and Scandinavian discs' build (docs/game/discs.md): the game starts it
+; itself for such a disc. Installed always, so a later disc change needs no new setup.
+Source: "staging\superchargersrecompiled_fr_nl_nordic.exe"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "staging\*.dll"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "staging\superchargersrecomp_xexcheck.exe"; DestDir: "{tmp}"; Flags: dontcopy
 Source: "settings_template.toml"; DestDir: "{tmp}"; Flags: dontcopy
@@ -232,7 +235,8 @@ begin
   // build-time invariant, not a user-triggerable state). A negative code means the process itself
   // crashed before printing anything meaningful (e.g. a missing Visual C++ runtime DLL) -- that must
   // not be reported as "wrong game version", which wrongly blames the user's legitimate disc.
-  if ResultCode = 0 then begin
+  // 5 = the other build's disc (French / Dutch, Scandinavian): its own exe comes with this setup, the game starts it.
+  if (ResultCode = 0) or (ResultCode = 5) then begin
     Result := True;
     Exit;
   end;
@@ -243,7 +247,7 @@ begin
     ErrorMsg := 'Could not read ' + CandidateXex + ' to check its version.'
   else if ResultCode = 2 then begin
     ErrorMsg := 'This is not a supported Skylanders: SuperChargers version (Xbox 360): ' +
-      'the European English / German, Spanish / Italian or French / Dutch disc. ' +
+      'the European English / German, Spanish / Italian, French / Dutch or Scandinavian disc. ' +
       'The installer will not continue with an unsupported copy of the game.';
     if LoadStringFromFile(CheckOutput, CheckText) then
       ErrorMsg := ErrorMsg + #13#10#13#10 + String(CheckText) + #13#10 +
@@ -346,7 +350,7 @@ begin
   XexCheckExe := ExpandConstant('{tmp}') + '\superchargersrecomp_xexcheck.exe';
   ExtractXexCheckWithRuntime;
   Result := Exec(XexCheckExe, '"' + ExistingXex + '"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
-    and (ResultCode = 0);
+    and ((ResultCode = 0) or (ResultCode = 5));  // 5: the other build's disc, run by its own exe
 end;
 
 // RomPage is always skipped when a valid rom/ already exists. SettingsPage is only skipped when
