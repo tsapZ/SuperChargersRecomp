@@ -27,7 +27,8 @@ anisotropic_override = 5                  # texture filtering: 5 = 16x, 3 = 4x, 
 mnk_mode = true                           # enable keyboard/mouse controller emulation
 
 ["Game"]
-# language = "auto"                       # auto (Windows language), english, german, french, spanish, italian, dutch
+# language = "auto"                       # auto (Windows language), english, german, french, spanish, italian, dutch,
+                                          # swedish, norwegian, danish, finnish: those the disc has
 skip_intro = false                         # true: skip the Activision and Vicarious Visions logo movies
 # skip_opening_movie = true                # skip the opening movie of a new game
 
