@@ -66,8 +66,8 @@ the figures on the emulated portal, A marks one to take off, Continue takes them
   fullscreen, the screen it opens on (`monitor`), window size.
 - **Frame rate:** 60 FPS and more (`present_interval`), frame rate limit (`frame_rate_limit`),
   VSync, render path, graphics card, graphics interface (D3D12 or Vulkan).
-- **Game:** language (automatic, English, German, Spanish, Italian: what the two European discs
-  have), skip the logo movies, skip the opening movie, the figure intro ("Short":
+- **Game:** language (automatic and what the disc has: English and German, Spanish and Italian,
+  French and Dutch, or Swedish, Norwegian, Danish and Finnish), skip the logo movies, skip the opening movie, the figure intro ("Short":
   `figure_intro_seconds`), achievements, quit and restart the game.
 - **Portal:** virtual / both / USB / none (`portal_mode`), the portal menu opening by itself, only my
   figures, later games' figures, the player menu.
